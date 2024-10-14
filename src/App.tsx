@@ -9,7 +9,6 @@ import DashboardRevenuePage from "./page/dashboard_revenue/DashboardRevenuePage"
 import AppLogin from "./template/AppLogin";
 import LoginPage from "./page/login/LoginPage";
 import { useQuery } from "@tanstack/react-query";
-import { fetchInitialToken } from "./api/authApi";
 import { useUserStore } from "./store/userStore";
 import SpinnerLoading from "./component_common/loading/SpinnerLoading";
 import ProductCreatePage from "./page/create_product/ProductCreatePage";
@@ -22,26 +21,12 @@ import AdvertisementCreatePage from "./page/advertisement/AdvertisementCreatePag
 import AdvertisementUpdatePage from "./page/advertisement/AdvertisementUpdatePage";
 import PostPage from "./page/post/PostPage";
 import PostCreatePage from "./page/post/PostCreatePage";
+import ProvincePage from "./page/province/ProvincePage";
 
 function App() {
   const { currentUser, tokenInitial, setTokenInitial } = useUserStore();
-  const { data, isError, isLoading, isFetching, isSuccess } = useQuery({
-    queryKey: ["tokenInitial"],
-    queryFn: async () => await fetchInitialToken(),
-  });
-
-  useEffect(() => {
-    if (isSuccess && data != undefined) {
-      setTokenInitial(data?.TOKEN);
-    }
-  }, [isSuccess]);
-
-  return isFetching ? (
-    <div className="h-screen w-full flex items-center justify-center gap-x-3">
-      <SpinnerLoading className="w-10 h-10 fill-primary" />
-      <span className="text-2xl text-gray-500 italic">Đang tải dữ liệu..</span>
-    </div>
-  ) : (
+  console.log(import.meta.env.VITE_API_URL);
+  return (
     <>
       <Toaster />
       <BrowserRouter>
@@ -64,44 +49,11 @@ function App() {
               element={<DashboardRevenuePage></DashboardRevenuePage>}
               path="/dashboard_revenue"
             ></Route>
-            <Route
-              element={<ProductPage></ProductPage>}
-              path="/product"
+             <Route
+              element={<ProvincePage></ProvincePage>}
+              path="/province"
             ></Route>
-            <Route
-              element={<ProductCreatePageFormik></ProductCreatePageFormik>}
-              path="/create_product"
-            ></Route>
-
-            <Route
-              element={<AdvertisementPage></AdvertisementPage>}
-              path="/advertisement"
-            ></Route>
-            <Route
-              element={<AdvertisementCreatePage></AdvertisementCreatePage>}
-              path="/create_advertisement"
-            ></Route>
-            <Route
-              element={<AdvertisementUpdatePage></AdvertisementUpdatePage>}
-              path="/update_advertisement/:id"
-            ></Route>
-            <Route element={<PostPage></PostPage>} path="/post"></Route>
-            <Route
-              element={<PostCreatePage></PostCreatePage>}
-              path="/create_post"
-            ></Route>
-            <Route
-              element={<MessagesPage></MessagesPage>}
-              path="/messages"
-            ></Route>
-            <Route
-              element={<PromotionPage></PromotionPage>}
-              path="/promotion"
-            ></Route>
-            <Route
-              element={<NotifycationComponent></NotifycationComponent>}
-              path="/notify"
-            ></Route>
+            
           </Route>
           <Route
             element={

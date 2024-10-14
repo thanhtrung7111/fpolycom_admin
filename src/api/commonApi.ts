@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useUserStore } from "@/store/userStore";
 import moment from "moment";
-// Tải dữ liệu theo điều kiện
+
+
+
 export const fetchDataCondition = async (body: { [key: string]: any }) => {
   const response = await axios.post(
     "https://api-dev.firstems.com/Api/data/runApi_Data?run_Code=DTA004",
@@ -94,29 +96,6 @@ export const fetchImage = async (url: string) => {
   // }
 };
 
-// Thêm mới dữ liệu
-export const postData = async (body: { [key: string]: any }) => {
-  const response = await axios.post(
-    "https://api-dev.firstems.com/Api/data/runApi_Data?run_Code=DTA007",
-    body,
-    {
-      headers: {
-        token: useUserStore.getState().tokenLocation,
-      },
-    }
-  );
-
-  console.log(response);
-  // Kiểm tra nếu phản hồi không hợp lệ
-  if (response.status != 200) {
-    throw new Error("Failed to fetch data");
-  }
-  // Nếu dữ liệu trả về là undefined hoặc null, ném lỗi
-  if (!response.data?.RETNCODE) {
-    throw new Error("No data found");
-  }
-  return response.data?.RETNDATA;
-};
 
 // Cập nhật dữ liệu
 export const updateData = async (body: { [key: string]: any }) => {
@@ -212,4 +191,45 @@ export const deleteImage = async (body: FormData) => {
     throw new Error("No data found");
   }
   return response.data?.RETNDATA;
+};
+
+/// Code
+export const fetchData = async (enpoint: string) => {
+  const response = await axios.get(
+    import.meta.env.VITE_API_URL + enpoint,
+    {
+      headers: {
+        Authorization: "Bearer " + useUserStore.getState().currentUser?.token
+      }
+    }
+  )
+  if (response.status != 200) {
+    throw new Error("Failed to fetch data");
+  }
+  // Nếu dữ liệu trả về là undefined hoặc null, ném lỗi
+  if (!(response.data?.code == "00")) {
+    throw new Error("No data found");
+  }
+  return response.data?.data;
+};
+
+/// Code
+export const postData = async (body: { [key: string]: any }, enpoint: string) => {
+  const response = await axios.post(
+    import.meta.env.VITE_API_URL + enpoint,
+    body,
+    {
+      headers: {
+        Authorization: "Bearer " + useUserStore.getState().currentUser?.token
+      }
+    }
+  )
+  if (response.status != 200) {
+    throw new Error("Thêm dữ liệu thất bại!");
+  }
+  // Nếu dữ liệu trả về là undefined hoặc null, ném lỗi
+  if (!(response.data?.code == "00")) {
+    throw new Error("No data found");
+  }
+  return response.data?.data;
 };

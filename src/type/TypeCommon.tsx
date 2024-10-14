@@ -139,3 +139,9 @@ export type AdvertisementUpdateObject = {
   BANR_RUN: number;
   IMAGE_BANR: string;
 };
+
+export type ProvinceObject = {
+  name: string;
+  provinceCode: string;
+  numberOfDistricts: number;
+};
