@@ -23,6 +23,9 @@ import PostPage from "./page/post/PostPage";
 import PostCreatePage from "./page/post/PostCreatePage";
 import ProvincePage from "./page/province/ProvincePage";
 import DistrictPage from "./page/district/DistrictPage";
+import WardPage from "./page/ward/WardPage";
+import BankPage from "./page/bank/BankPage";
+import BankBranchPage from "./page/bank_branch/BankBranchPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -57,6 +60,12 @@ function App() {
             <Route
               element={<DistrictPage></DistrictPage>}
               path="/district"
+            ></Route>
+            <Route element={<WardPage></WardPage>} path="/ward"></Route>
+            <Route element={<BankPage></BankPage>} path="/bank"></Route>
+            <Route
+              element={<BankBranchPage></BankBranchPage>}
+              path="/bank_branch"
             ></Route>
           </Route>
           <Route

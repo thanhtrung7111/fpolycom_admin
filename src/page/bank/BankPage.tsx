@@ -13,37 +13,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ProvinceObject } from "@/type/TypeCommon";
+import {
+  BankObject,
+  DistrictObject,
+  ProvinceObject,
+  WardObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import ProvinceCreateDialog from "./component/ProvinceCreateDialog";
-import ProvinceUpdateDialog from "./component/ProvinceUpdateDialog";
 import { fetchData } from "@/api/commonApi";
-import ProvinceDeleteDialog from "./component/ProvinceDeleteDialog";
-
-const ProvincePage = () => {
+import BankCreatePage from "./component/BankCreatePage";
+import BankUpdatePage from "./component/BankUpdatePage";
+import BankDeletePage from "./component/BankDeletePage";
+const BankPage = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<BankObject | null>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["provinces"],
-    queryFn: () => fetchData("/admin/province/all"),
+    queryKey: ["banks"],
+    queryFn: () => fetchData("/admin/bank/all"),
   });
+
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Danh sách Tỉnh/Thành phố",
-      itemLink: "/province",
+      itemName: "Ngân hàng",
+    },
+    {
+      itemName: "Danh sách ngân hàng",
+      itemLink: "/bank",
     },
   ];
-  const columns: ColumnDef<ProvinceObject>[] = [
+  const columns: ColumnDef<BankObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -67,15 +75,15 @@ const ProvincePage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "provinceCode",
-      meta: "Mã tỉnh/thành phố",
+      accessorKey: "bankCode",
+      meta: "Mã ngân hàng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã tỉnh/thành phố
+            Mã ngân hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -85,20 +93,20 @@ const ProvincePage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("provinceCode")}</div>
+        <div className="capitalize">{row.getValue("bankCode")}</div>
       ),
       enableHiding: true,
     },
     {
       accessorKey: "name",
-      meta: "Tên tỉnh/thành phố",
+      meta: "Tên ngân hàng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên tỉnh/thành phố
+            Tên ngân hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -113,15 +121,15 @@ const ProvincePage = () => {
       enableHiding: true,
     },
     {
-      accessorKey: "numberOfDistricts",
-      meta: "Số huyện trực thuộc",
+      accessorKey: "shortName",
+      meta: "Tên viết tắt",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Số huyện trực thuộc
+            Tên viết tắt
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -131,7 +139,30 @@ const ProvincePage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfDistricts")}</div>
+        <div className="capitalize">{row.getValue("shortName")}</div>
+      ),
+      enableHiding: true,
+    },
+    {
+      accessorKey: "numberOfBankBranch",
+      meta: "Tổng số chi nhánh",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Tổng chi nhánh
+            {column.getIsSorted() === "asc" ? (
+              <i className="ri-arrow-up-line"></i>
+            ) : (
+              <i className="ri-arrow-down-line"></i>
+            )}
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("numberOfBankBranch")}</div>
       ),
       enableHiding: true,
     },
@@ -176,23 +207,22 @@ const ProvincePage = () => {
       },
     },
   ];
-
   return (
     <>
-      <ProvinceDeleteDialog
+      <BankDeletePage
         item={selectedItem}
         open={openDelete}
         onClose={() => setOpenDelete(false)}
-      ></ProvinceDeleteDialog>
-      <ProvinceUpdateDialog
+      ></BankDeletePage>
+      <BankUpdatePage
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
-      ></ProvinceUpdateDialog>
-      <ProvinceCreateDialog
+      ></BankUpdatePage>
+      <BankCreatePage
         open={openNew}
         onClose={() => setOpenNew(false)}
-      ></ProvinceCreateDialog>
+      ></BankCreatePage>
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
           <BreadcrumbCustom
@@ -205,7 +235,7 @@ const ProvincePage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách quảng cáo
+            Danh sách ngân hàng
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -230,23 +260,16 @@ const ProvincePage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
-              { key: "provinceCode", name: "mã tỉnh/thành phố", type: "text" },
-              { key: "name", name: "tên tỉnh/thành phố", type: "text" },
-              //   {
-              //     key: "BANRTYPE",
-              //     name: "Loại quảng cáo",
-              //     type: "combobox",
-              //     dataKey: "ITEMCODE",
-              //     dataName: "ITEMNAME",
-              //     dataList: dataBannerType,
-              //   },
+              { key: "bankCode", name: "mã ngân hàng", type: "text" },
+              { key: "name", name: "tên ngân hàng", type: "text" },
+              { key: "shortName", name: "tên viết tắt", type: "text" },
             ]}
             isLoading={isFetching}
           ></TableCustom>
         </div>
-      </div>{" "}
+      </div>
     </>
   );
 };
 
-export default ProvincePage;
+export default BankPage;

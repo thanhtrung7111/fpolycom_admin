@@ -3,6 +3,7 @@ import { useField } from "formik";
 
 const TextareaFormikForm = ({
   label,
+  placeholder = "Nhập dữ liệu...",
   important = false,
   disabled = false,
   onChange,
@@ -14,6 +15,7 @@ const TextareaFormikForm = ({
   important?: boolean;
   disabled?: boolean;
   name: string;
+  placeholder: string;
   row: number;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }) => {
@@ -25,6 +27,7 @@ const TextareaFormikForm = ({
         {important && <span className="text-red-500">*</span>}
       </label>
       <textarea
+        placeholder={placeholder}
         rows={row}
         {...field}
         autoComplete="off"

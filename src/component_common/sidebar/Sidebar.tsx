@@ -51,22 +51,48 @@ const menu: any[] = [
     itemList: [
       {
         itemName: "Địa điểm",
-        itemIcon:<i className="ri-map-pin-line"></i>,
+        itemIcon: <i className="ri-map-pin-line"></i>,
         itemList: [
           {
             itemName: "Tỉnh/Thành phố",
-            itemIcon:<i className="ri-building-line"></i>,
+            itemIcon: <i className="ri-building-line"></i>,
             link: "/province",
           },
           {
             itemName: "Quận/Huyện",
-            itemIcon:<i className="ri-building-2-line"></i>,
+            itemIcon: <i className="ri-building-2-line"></i>,
             link: "/district",
           },
           {
             itemName: "Phường/Thị xã",
-            itemIcon:<i className="ri-building-4-line"></i>,
+            itemIcon: <i className="ri-building-4-line"></i>,
             link: "/ward",
+          },
+        ],
+      },
+      {
+        itemName: "Ngân hàng",
+        itemIcon: <i className="ri-bank-fill"></i>,
+        itemList: [
+          {
+            itemName: "Ngân hàng",
+            itemIcon: <i className="ri-bank-card-line"></i>,
+            link: "/bank",
+          },
+          {
+            itemName: "Chi nhánh",
+            itemIcon: <i className="ri-home-8-line"></i>,
+            link: "/bank_branch",
+          },
+          {
+            itemName: "Tài khoản người dùng",
+            itemIcon: <i className="ri-account-box-line"></i>,
+            link: "/bank_user",
+          },
+          {
+            itemName: "Tài khoản cửa hàng",
+            itemIcon: <i className="ri-store-line"></i>,
+            link: "/bank_store",
           },
         ],
       },

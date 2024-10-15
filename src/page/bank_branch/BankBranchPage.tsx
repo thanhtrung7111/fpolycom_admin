@@ -13,37 +13,48 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ProvinceObject } from "@/type/TypeCommon";
+import { DistrictObject, ProvinceObject, WardObject } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import ProvinceCreateDialog from "./component/ProvinceCreateDialog";
-import ProvinceUpdateDialog from "./component/ProvinceUpdateDialog";
 import { fetchData } from "@/api/commonApi";
-import ProvinceDeleteDialog from "./component/ProvinceDeleteDialog";
+import WardDeletePage from "./component/WardDeletePage";
+import WardUpdatePage from "./component/WardUpdatePage";
+import WardCreatePage from "./component/WardCreatePage";
 
-const ProvincePage = () => {
+const BankBranchPage = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<WardObject | null>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["provinces"],
-    queryFn: () => fetchData("/admin/province/all"),
+    queryKey: ["wards"],
+    queryFn: () => fetchData("/admin/ward/all"),
   });
+  const {
+    data: dataDistricts,
+    isError: isErrorDistricts,
+    isFetching: isFetchingDistricts,
+    error: errorDistricts,
+    isSuccess: isSuccessDistricts,
+  } = useQuery({
+    queryKey: ["districts"],
+    queryFn: () => fetchData("/admin/district/all"),
+  });
+  console.log("Hell");
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Danh sách Tỉnh/Thành phố",
-      itemLink: "/province",
+      itemName: "Danh sách Thị xã/Thị trấn",
+      itemLink: "/ward",
     },
   ];
-  const columns: ColumnDef<ProvinceObject>[] = [
+  const columns: ColumnDef<WardObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -67,15 +78,15 @@ const ProvincePage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "provinceCode",
-      meta: "Mã tỉnh/thành phố",
+      accessorKey: "wardCode",
+      meta: "Mã Thị xã/Thị trấn",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã tỉnh/thành phố
+            Mã Thị xã/Thị trấn
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -85,20 +96,20 @@ const ProvincePage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("provinceCode")}</div>
+        <div className="capitalize">{row.getValue("wardCode")}</div>
       ),
       enableHiding: true,
     },
     {
       accessorKey: "name",
-      meta: "Tên tỉnh/thành phố",
+      meta: "Tên Thị xã/Thị trấn",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên tỉnh/thành phố
+            Tên Thị xã/Thị trấn
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -113,15 +124,16 @@ const ProvincePage = () => {
       enableHiding: true,
     },
     {
-      accessorKey: "numberOfDistricts",
-      meta: "Số huyện trực thuộc",
+      accessorKey: "districtCode",
+      meta: "Phường/Huyện",
       header: ({ column }) => {
         return (
           <Button
+            className="hidden"
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Số huyện trực thuộc
+            Thuộc Tỉnh/Thành Phố
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -131,9 +143,9 @@ const ProvincePage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfDistricts")}</div>
+        <div className="capitalize hidden">{row.getValue("districtCode")}</div>
       ),
-      enableHiding: true,
+      enableHiding: false,
     },
     {
       id: "actions",
@@ -176,77 +188,7 @@ const ProvincePage = () => {
       },
     },
   ];
-
-  return (
-    <>
-      <ProvinceDeleteDialog
-        item={selectedItem}
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-      ></ProvinceDeleteDialog>
-      <ProvinceUpdateDialog
-        open={openUpdate}
-        onClose={() => setOpenUpdate(false)}
-        item={selectedItem}
-      ></ProvinceUpdateDialog>
-      <ProvinceCreateDialog
-        open={openNew}
-        onClose={() => setOpenNew(false)}
-      ></ProvinceCreateDialog>
-      <div className="flex flex-col gap-y-2">
-        <div className="mb-3">
-          <BreadcrumbCustom
-            linkList={breadBrumb}
-            itemName={"itemName"}
-            itemLink={"itemLink"}
-          ></BreadcrumbCustom>
-        </div>
-
-        {/* Action  */}
-        <div className="flex justify-between items-center">
-          <h4 className="text-xl font-medium text-gray-600">
-            Danh sách quảng cáo
-          </h4>
-          <div className="flex gap-x-2">
-            <ButtonForm
-              className="!bg-primary !w-28"
-              type="button"
-              icon={<i className="ri-download-2-line"></i>}
-              label="Xuất excel"
-            ></ButtonForm>
-            <ButtonForm
-              className="!bg-secondary !w-28"
-              type="button"
-              icon={<i className="ri-file-add-line"></i>}
-              onClick={() => setOpenNew(true)}
-              label="Thêm mới"
-            ></ButtonForm>
-          </div>
-        </div>
-
-        {/* table */}
-        <div className="rounded-md p-5 bg-white border-gray-200 border shadow-md">
-          <TableCustom
-            data={isSuccess ? data : []}
-            columns={columns}
-            search={[
-              { key: "provinceCode", name: "mã tỉnh/thành phố", type: "text" },
-              { key: "name", name: "tên tỉnh/thành phố", type: "text" },
-              //   {
-              //     key: "BANRTYPE",
-              //     name: "Loại quảng cáo",
-              //     type: "combobox",
-              //     dataKey: "ITEMCODE",
-              //     dataName: "ITEMNAME",
-              //     dataList: dataBannerType,
-              //   },
-            ]}
-            isLoading={isFetching}
-          ></TableCustom>
-        </div>
-      </div>{" "}
-    </>
-  );
+  return <div>BankBranchPage</div>;
 };
 
-export default ProvincePage;
+export default BankBranchPage;

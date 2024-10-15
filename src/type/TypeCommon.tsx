@@ -147,8 +147,23 @@ export type ProvinceObject = {
 };
 
 export type DistrictObject = {
-  name?: string;
-  districtCode?: string | null;
-  provinceCode?: string | null;
-  numberOfWards?: number | null;
+  name: string | undefined;
+  districtCode: string | undefined;
+  provinceCode: string | undefined;
+  numberOfWards?: number | undefined;
+};
+
+export type WardObject = {
+  wardCode: string | undefined;
+  name: string | undefined;
+  districtCode: string | undefined;
+};
+
+export type BankObject = {
+  name: string | undefined;
+  shortName: string | undefined;
+  bankCode?: string | undefined;
+  description: string | undefined;
+  image: string | undefined;
+  numberOfBankBranch?: number | undefined;
 };

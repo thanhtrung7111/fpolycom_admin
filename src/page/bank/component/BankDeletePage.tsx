@@ -8,36 +8,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { WardObject } from "@/type/TypeCommon";
+import { BankObject, WardObject } from "@/type/TypeCommon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 
-const WardDeletePage = ({
+const BankDeletePage = ({
   open = false,
   item = null,
   onClose,
 }: {
   open: boolean;
-  item: WardObject | null;
+  item: BankObject | null;
   onClose: () => void;
 }) => {
   const queryClient = useQueryClient();
 
   const handleDelete = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/ward/delete"),
-    onSuccess: (data: WardObject) => {
-      if (queryClient.getQueryData(["wards"])) {
-        queryClient.setQueryData(["wards"], (oldData: WardObject[]) => {
+      postData(body, "/admin/bank/delete"),
+    onSuccess: (data: BankObject) => {
+      if (queryClient.getQueryData(["banks"])) {
+        queryClient.setQueryData(["banks"], (oldData: BankObject[]) => {
           const resultData = data;
           console.log(resultData);
           return [
-            ...oldData.filter((item) => item.wardCode != resultData.wardCode),
+            ...oldData.filter((item) => item.bankCode != resultData.bankCode),
           ];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "wards",
+          predicate: (query) => query.queryKey[0] === "banks",
         });
       }
     },
@@ -67,14 +67,14 @@ const WardDeletePage = ({
                     <>
                       <SpinnerLoading className="w-6 h-6 fill-primary"></SpinnerLoading>
                       <span className="text-gray-700 text-base">
-                        Đang xóa Thị xã/Thị trấn...
+                        Đang xóa ngân hàng...
                       </span>
                     </>
                   ) : (
                     <>
                       <i className="ri-delete-bin-line text-gray-700 text-xl"></i>
                       <span className="text-gray-700 text-base">
-                        Bạn có muốn xóa Thị xã/Thị trấn
+                        Bạn có muốn xóa ngân hàng
                         <b className="text-gray-500"> {item?.name}</b> ?
                       </span>
                     </>
@@ -88,7 +88,7 @@ const WardDeletePage = ({
                     loading={handleDelete.isPending}
                     onClick={async () => {
                       await handleDelete.mutateAsync({
-                        wardCode: item?.wardCode,
+                        bankCode: item?.bankCode,
                       });
                     }}
                   ></ButtonForm>
@@ -129,4 +129,4 @@ const WardDeletePage = ({
   );
 };
 
-export default WardDeletePage;
+export default BankDeletePage;

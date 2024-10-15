@@ -4,27 +4,27 @@ import React from "react";
 const ImageComponent = ({
   url = "",
   id = "",
+  file = null,
   type = "",
-  className = "",
+  className = "h-24 w-24",
 }: {
-  url: string;
-  id: string;
+  url?: string;
+  file: File | null;
+  id: string | undefined;
   type: string;
   className: string;
 }) => {
   const { data, isFetching, isSuccess, isError } = useQuery({
-    queryKey: ["type", id],
+    queryKey: ["image" + type, id],
     queryFn: () => url,
+    enabled: url != "",
   });
   console.log(data);
   return (
     <div className={`${className}`}>
       <img
-        src={
-          isSuccess
-            ? data
-            : "https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-        }
+        className="h-full w-full object-cover object-center"
+        src={file != null ? URL.createObjectURL(file) : data}
         alt=""
       />
     </div>
