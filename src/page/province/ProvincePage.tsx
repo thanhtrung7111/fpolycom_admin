@@ -39,7 +39,7 @@ const ProvincePage = () => {
     queryKey: ["provinces"],
     queryFn: () => fetchData("/admin/province/all"),
   });
-
+  console.log("Hell");
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
