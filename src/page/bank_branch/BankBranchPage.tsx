@@ -13,7 +13,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DistrictObject, ProvinceObject, WardObject } from "@/type/TypeCommon";
+import {
+  BankBranckObject,
+  DistrictObject,
+  ProvinceObject,
+  WardObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
@@ -24,37 +29,45 @@ import { fetchData } from "@/api/commonApi";
 import WardDeletePage from "./component/WardDeletePage";
 import WardUpdatePage from "./component/WardUpdatePage";
 import WardCreatePage from "./component/WardCreatePage";
+import BankDeletePage from "../bank/component/BankDeletePage";
+import BankBranchUpdateDialog from "./component/BankBranchUpdateDialog";
+import BankBranchDeleteDialog from "./component/BankBranchDeleteDialog";
+import BankBranchCreateDialog from "./component/BankBranchCreateDialog";
 
 const BankBranchPage = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<WardObject | null>(null);
+  const [selectedItem, setSelectedItem] = useState<BankBranckObject | null>(
+    null
+  );
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["wards"],
-    queryFn: () => fetchData("/admin/ward/all"),
+    queryKey: ["bankbranchs"],
+    queryFn: () => fetchData("/admin/bankbranch/all"),
   });
   const {
-    data: dataDistricts,
-    isError: isErrorDistricts,
-    isFetching: isFetchingDistricts,
-    error: errorDistricts,
-    isSuccess: isSuccessDistricts,
+    data: dataBank,
+    isError: isErrorBank,
+    isFetching: isFetchingBank,
+    error: errorBank,
+    isSuccess: isSuccessBank,
   } = useQuery({
-    queryKey: ["districts"],
-    queryFn: () => fetchData("/admin/district/all"),
+    queryKey: ["banks"],
+    queryFn: () => fetchData("/admin/bank/all"),
   });
-  console.log("Hell");
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Danh sách Thị xã/Thị trấn",
+      itemName: "Ngân hàng",
+    },
+    {
+      itemName: "Danh sách chi nhánh",
       itemLink: "/ward",
     },
   ];
-  const columns: ColumnDef<WardObject>[] = [
+  const columns: ColumnDef<BankBranckObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -78,15 +91,15 @@ const BankBranchPage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "wardCode",
-      meta: "Mã Thị xã/Thị trấn",
+      accessorKey: "bankBranchCode",
+      meta: "Mã chi nhánh",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã Thị xã/Thị trấn
+            Mã chi nhánh
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -96,20 +109,20 @@ const BankBranchPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("wardCode")}</div>
+        <div className="capitalize">{row.getValue("bankBranchCode")}</div>
       ),
       enableHiding: true,
     },
     {
       accessorKey: "name",
-      meta: "Tên Thị xã/Thị trấn",
+      meta: "Tên chi nhánh",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên Thị xã/Thị trấn
+            Tên chi nhánh
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -124,8 +137,8 @@ const BankBranchPage = () => {
       enableHiding: true,
     },
     {
-      accessorKey: "districtCode",
-      meta: "Phường/Huyện",
+      accessorKey: "bankCode",
+      meta: "Ngân hàng",
       header: ({ column }) => {
         return (
           <Button
@@ -133,7 +146,7 @@ const BankBranchPage = () => {
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Thuộc Tỉnh/Thành Phố
+            Ngân hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -143,7 +156,7 @@ const BankBranchPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize hidden">{row.getValue("districtCode")}</div>
+        <div className="capitalize hidden">{row.getValue("bankCode")}</div>
       ),
       enableHiding: false,
     },
@@ -188,7 +201,77 @@ const BankBranchPage = () => {
       },
     },
   ];
-  return <div>BankBranchPage</div>;
+  return (
+    <>
+      <BankBranchDeleteDialog
+        item={selectedItem}
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+      ></BankBranchDeleteDialog>
+      <BankBranchUpdateDialog
+        open={openUpdate}
+        onClose={() => setOpenUpdate(false)}
+        item={selectedItem}
+      ></BankBranchUpdateDialog>
+      <BankBranchCreateDialog
+        open={openNew}
+        onClose={() => setOpenNew(false)}
+      ></BankBranchCreateDialog>
+      <div className="flex flex-col gap-y-2">
+        <div className="mb-3">
+          <BreadcrumbCustom
+            linkList={breadBrumb}
+            itemName={"itemName"}
+            itemLink={"itemLink"}
+          ></BreadcrumbCustom>
+        </div>
+
+        {/* Action  */}
+        <div className="flex justify-between items-center">
+          <h4 className="text-xl font-medium text-gray-600">
+            Danh sách chi nhánh ngân hàng
+          </h4>
+          <div className="flex gap-x-2">
+            <ButtonForm
+              className="!bg-primary !w-28"
+              type="button"
+              icon={<i className="ri-download-2-line"></i>}
+              label="Xuất excel"
+            ></ButtonForm>
+            <ButtonForm
+              className="!bg-secondary !w-28"
+              type="button"
+              icon={<i className="ri-file-add-line"></i>}
+              onClick={() => setOpenNew(true)}
+              label="Thêm mới"
+            ></ButtonForm>
+          </div>
+        </div>
+
+        {/* table */}
+        <div className="rounded-md p-5 bg-white border-gray-200 border shadow-md">
+          <TableCustom
+            data={isSuccess ? data : []}
+            columns={columns}
+            search={[
+              { key: "bankBranchCode", name: "mã chi nhánh", type: "text" },
+              { key: "name", name: "tên chi nhánh", type: "text" },
+              {
+                key: "bankCode",
+                name: "Ngân hàng",
+                type: "combobox",
+                dataKey: "bankCode",
+                dataName: "name",
+                dataList:
+                  isSuccessBank && dataBank != undefined ? dataBank : [],
+              },
+            ]}
+            isLoading={isFetching}
+          ></TableCustom>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default BankBranchPage;

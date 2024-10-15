@@ -167,3 +167,9 @@ export type BankObject = {
   image: string | undefined;
   numberOfBankBranch?: number | undefined;
 };
+
+export type BankBranckObject = {
+  bankBranchCode: string | undefined;
+  name: string | undefined;
+  bankCode: string | undefined;
+};
