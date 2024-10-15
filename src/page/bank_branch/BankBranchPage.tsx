@@ -24,12 +24,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Yup from "yup";
 import { fetchData } from "@/api/commonApi";
-import WardDeletePage from "./component/WardDeletePage";
-import WardUpdatePage from "./component/WardUpdatePage";
-import WardCreatePage from "./component/WardCreatePage";
-import BankDeletePage from "../bank/component/BankDeletePage";
 import BankBranchUpdateDialog from "./component/BankBranchUpdateDialog";
 import BankBranchDeleteDialog from "./component/BankBranchDeleteDialog";
 import BankBranchCreateDialog from "./component/BankBranchCreateDialog";
@@ -203,11 +198,11 @@ const BankBranchPage = () => {
   ];
   return (
     <>
-      <BankBranchDeleteDialog
+      {/* <BankBranchDeleteDialog
         item={selectedItem}
         open={openDelete}
         onClose={() => setOpenDelete(false)}
-      ></BankBranchDeleteDialog>
+      ></BankBranchDeleteDialog> */}
       <BankBranchUpdateDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
