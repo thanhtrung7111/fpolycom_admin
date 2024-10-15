@@ -8,38 +8,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ProvinceObject } from "@/type/TypeCommon";
+import { DistrictObject, ProvinceObject } from "@/type/TypeCommon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React from "react";
-
-const ProvinceDeleteDialog = ({
+const DistrictDeleteDialog = ({
   open = false,
   item = null,
   onClose,
 }: {
   open: boolean;
-  item: ProvinceObject | null;
+  item: DistrictObject | null;
   onClose: () => void;
 }) => {
   const queryClient = useQueryClient();
 
   const handleDelete = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/province/delete"),
-    onSuccess: (data: ProvinceObject) => {
-      if (queryClient.getQueryData(["provinces"])) {
-        queryClient.setQueryData(["provinces"], (oldData: ProvinceObject[]) => {
+      postData(body, "/admin/district/delete"),
+    onSuccess: (data: DistrictObject) => {
+      if (queryClient.getQueryData(["districts"])) {
+        queryClient.setQueryData(["districts"], (oldData: DistrictObject[]) => {
           const resultData = data;
           console.log(resultData);
           return [
             ...oldData.filter(
-              (item) => item.provinceCode != resultData.provinceCode
+              (item) => item.districtCode != resultData.districtCode
             ),
           ];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "provinces",
+          predicate: (query) => query.queryKey[0] === "districts",
         });
       }
     },
@@ -69,14 +68,14 @@ const ProvinceDeleteDialog = ({
                     <>
                       <SpinnerLoading className="w-6 h-6 fill-primary"></SpinnerLoading>
                       <span className="text-gray-700 text-base">
-                        Đang xóa sản phẩm...
+                        Đang xóa Phường/Huyện...
                       </span>
                     </>
                   ) : (
                     <>
                       <i className="ri-delete-bin-line text-gray-700 text-xl"></i>
                       <span className="text-gray-700 text-base">
-                        Bạn có muốn xóa tỉnh/thành phố
+                        Bạn có muốn xóa Phường/Huyện
                         <b className="text-gray-500"> {item?.name}</b> ?
                       </span>
                     </>
@@ -87,13 +86,15 @@ const ProvinceDeleteDialog = ({
                     type="button"
                     className="!w-28 !bg-primary"
                     label="Xác nhận"
+                    loading={handleDelete.isPending}
                     onClick={async () => {
                       await handleDelete.mutateAsync({
-                        provinceCode: item?.provinceCode,
+                        districtCode: item?.districtCode,
                       });
                     }}
                   ></ButtonForm>
                   <ButtonForm
+                    disabled={handleDelete.isPending}
                     type="button"
                     className="!w-28 !bg-red-500"
                     label="Hủy"
@@ -129,4 +130,4 @@ const ProvinceDeleteDialog = ({
   );
 };
 
-export default ProvinceDeleteDialog;
+export default DistrictDeleteDialog;

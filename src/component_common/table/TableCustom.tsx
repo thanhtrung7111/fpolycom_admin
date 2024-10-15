@@ -175,7 +175,7 @@ const TableCustom = <TData, TValue>({
             table.getCoreRowModel().rows.length
               ? table.getCoreRowModel().rows.length
               : pageIndex * pageSize + pageSize}
-            ) trên {table.getCoreRowModel().rows.length} sản phẩm
+            ) trên {table.getCoreRowModel().rows.length} danh mục
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

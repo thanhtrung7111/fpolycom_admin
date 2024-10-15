@@ -26,7 +26,7 @@ const PasswordFormikForm = ({
       <div
         className={`${
           meta.error && meta.touched ? "border-red-500" : "border-gray-200"
-        } px-3 py-3 text-sm border outline-none rounded-sm w-full flex`}
+        } px-3 py-3 text-sm border bg-white outline-none rounded-sm w-full flex`}
       >
         <input
           {...props}

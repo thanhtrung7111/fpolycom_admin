@@ -141,7 +141,14 @@ export type AdvertisementUpdateObject = {
 };
 
 export type ProvinceObject = {
-  name: string;
-  provinceCode: string;
-  numberOfDistricts: number;
+  name: string | null;
+  provinceCode: string | null;
+  numberOfDistricts: number | null;
+};
+
+export type DistrictObject = {
+  name?: string;
+  districtCode?: string | null;
+  provinceCode?: string | null;
+  numberOfWards?: number | null;
 };

@@ -34,7 +34,7 @@ const ProvinceUpdateDialog = ({
     provinceCode: "",
   });
 
-  const handleUpdateProvince = useMutation({
+  const handleUpdate = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
       postData(body, "/admin/province/update"),
     onSuccess: (data: ProvinceObject) => {
@@ -60,7 +60,7 @@ const ProvinceUpdateDialog = ({
   const handleSubmit = async (
     values: typeof validationSchema
   ): Promise<void> => {
-    await handleUpdateProvince.mutateAsync(values);
+    await handleUpdate.mutateAsync(values);
   };
 
   useEffect(() => {
@@ -72,8 +72,8 @@ const ProvinceUpdateDialog = ({
     <Dialog
       open={open}
       onOpenChange={() => {
-        if (!handleUpdateProvince.isPending) {
-          handleUpdateProvince.reset();
+        if (!handleUpdate.isPending) {
+          handleUpdate.reset();
           onClose();
         }
       }}
@@ -105,7 +105,7 @@ const ProvinceUpdateDialog = ({
                 <div className="w-full overflow-hidden">
                   <div
                     className={`${
-                      handleUpdateProvince.isSuccess
+                      handleUpdate.isSuccess
                         ? "-translate-x-1/2"
                         : "translate-x-0"
                     } w-[200%] grid grid-cols-2 transition-transform`}
@@ -116,7 +116,7 @@ const ProvinceUpdateDialog = ({
                           label="Tên tỉnh/thành phố"
                           name="name"
                           important={true}
-                          disabled={handleUpdateProvince.isPending}
+                          disabled={handleUpdate.isPending}
                         ></InputFormikForm>
                       </DialogDescription>
                       <DialogFooter>
@@ -133,7 +133,7 @@ const ProvinceUpdateDialog = ({
                             label="Hủy"
                             onClick={() => {
                               onClose();
-                              handleUpdateProvince.reset();
+                              handleUpdate.reset();
 
                               resetForm();
                             }}
@@ -155,7 +155,7 @@ const ProvinceUpdateDialog = ({
                           label="Hủy"
                           onClick={() => {
                             onClose();
-                            handleUpdateProvince.reset();
+                            handleUpdate.reset();
 
                             resetForm();
                           }}

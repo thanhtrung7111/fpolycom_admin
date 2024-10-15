@@ -23,19 +23,14 @@ import * as Yup from "yup";
 import ProvinceCreateDialog from "./component/ProvinceCreateDialog";
 import ProvinceUpdateDialog from "./component/ProvinceUpdateDialog";
 import { fetchData } from "@/api/commonApi";
+import ProvinceDeleteDialog from "./component/ProvinceDeleteDialog";
 
 const ProvincePage = () => {
-  const [openNewProvince, setOpenNewProvince] = useState(false);
-  const [openUpdateProvince, setOpenUpdateProvince] = useState(false);
-  const [openDeleteProvince, setOpenDeleteProvince] = useState(false);
-  const [itemUpdate, setItemUpdate] = useState<any>(null);
-  const {
-    data: dataProvince,
-    isError: isErrorProvince,
-    isFetching: isFetchingProvince,
-    error: errorProvince,
-    isSuccess: isSuccessProvince,
-  } = useQuery({
+  const [openNew, setOpenNew] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const { data, isError, isFetching, error, isSuccess } = useQuery({
     queryKey: ["provinces"],
     queryFn: () => fetchData("/admin/province/all"),
   });
@@ -45,8 +40,8 @@ const ProvincePage = () => {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Danh sách quảng cáo",
-      itemLink: "/advertisement",
+      itemName: "Danh sách Tỉnh/Thành phố",
+      itemLink: "/province",
     },
   ];
   const columns: ColumnDef<ProvinceObject>[] = [
@@ -154,8 +149,8 @@ const ProvincePage = () => {
           <div className="flex gap-x-2 justify-end">
             <ButtonForm
               onClick={() => {
-                setItemUpdate(row.original);
-                setOpenUpdateProvince(true);
+                setSelectedItem(row.original);
+                setOpenUpdate(true);
               }}
               className="!bg-yellow-500 !w-28 text-sm"
               type="button"
@@ -170,10 +165,10 @@ const ProvincePage = () => {
               //   loading={
               //     row.original.KKKK0000 == bodyDelete && handleDelete.isPending
               //   }
-              //   onClick={async () => {
-              //     setAdvertisementDelete(row.original);
-              //     setOpentDialogDelete(true);
-              //   }}
+              onClick={async () => {
+                setSelectedItem(row.original);
+                setOpenDelete(true);
+              }}
               icon={<i className="ri-delete-bin-line"></i>}
               label="Xóa"
             ></ButtonForm>
@@ -185,14 +180,19 @@ const ProvincePage = () => {
 
   return (
     <>
+      <ProvinceDeleteDialog
+        item={selectedItem}
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+      ></ProvinceDeleteDialog>
       <ProvinceUpdateDialog
-        open={openUpdateProvince}
-        onClose={() => setOpenUpdateProvince(false)}
-        item={itemUpdate}
+        open={openUpdate}
+        onClose={() => setOpenUpdate(false)}
+        item={selectedItem}
       ></ProvinceUpdateDialog>
       <ProvinceCreateDialog
-        open={openNewProvince}
-        onClose={() => setOpenNewProvince(false)}
+        open={openNew}
+        onClose={() => setOpenNew(false)}
       ></ProvinceCreateDialog>
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
@@ -219,7 +219,7 @@ const ProvincePage = () => {
               className="!bg-secondary !w-28"
               type="button"
               icon={<i className="ri-file-add-line"></i>}
-              onClick={() => setOpenNewProvince(true)}
+              onClick={() => setOpenNew(true)}
               label="Thêm mới"
             ></ButtonForm>
           </div>
@@ -228,7 +228,7 @@ const ProvincePage = () => {
         {/* table */}
         <div className="rounded-md p-5 bg-white border-gray-200 border shadow-md">
           <TableCustom
-            data={isSuccessProvince ? dataProvince : []}
+            data={isSuccess ? data : []}
             columns={columns}
             search={[
               { key: "provinceCode", name: "mã tỉnh/thành phố", type: "text" },
@@ -242,7 +242,7 @@ const ProvincePage = () => {
               //     dataList: dataBannerType,
               //   },
             ]}
-            isLoading={isFetchingProvince}
+            isLoading={isFetching}
           ></TableCustom>
         </div>
       </div>{" "}

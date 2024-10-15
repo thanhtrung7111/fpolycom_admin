@@ -22,9 +22,10 @@ import AdvertisementUpdatePage from "./page/advertisement/AdvertisementUpdatePag
 import PostPage from "./page/post/PostPage";
 import PostCreatePage from "./page/post/PostCreatePage";
 import ProvincePage from "./page/province/ProvincePage";
+import DistrictPage from "./page/district/DistrictPage";
 
 function App() {
-  const { currentUser, tokenInitial, setTokenInitial } = useUserStore();
+  const { currentUser } = useUserStore();
   console.log(import.meta.env.VITE_API_URL);
   return (
     <>
@@ -49,11 +50,14 @@ function App() {
               element={<DashboardRevenuePage></DashboardRevenuePage>}
               path="/dashboard_revenue"
             ></Route>
-             <Route
+            <Route
               element={<ProvincePage></ProvincePage>}
               path="/province"
             ></Route>
-            
+            <Route
+              element={<DistrictPage></DistrictPage>}
+              path="/district"
+            ></Route>
           </Route>
           <Route
             element={
