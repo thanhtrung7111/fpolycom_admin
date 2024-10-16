@@ -97,9 +97,30 @@ const menu: any[] = [
         ],
       },
       {
-        itemName: "Quảng cáo",
-        itemIcon: <i className="ri-advertisement-line"></i>,
-        link: "/advertisement",
+        itemName: "Sản phẩm",
+        itemIcon: <i className="ri-box-3-line"></i>,
+        itemList: [
+          {
+            itemName: "Loại hàng",
+            itemIcon: <i className="ri-bank-card-line"></i>,
+            link: "/type_good",
+          },
+          {
+            itemName: "Thuộc tính loại hàng",
+            itemIcon: <i className="ri-home-8-line"></i>,
+            link: "/type_good_attr",
+          },
+          {
+            itemName: "Giảm giá",
+            itemIcon: <i className="ri-account-box-line"></i>,
+            link: "/discount",
+          },
+          {
+            itemName: "Tài khoản cửa hàng",
+            itemIcon: <i className="ri-store-line"></i>,
+            link: "/bank_store",
+          },
+        ],
       },
       {
         itemName: "Bài viết",

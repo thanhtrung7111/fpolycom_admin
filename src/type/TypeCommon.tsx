@@ -173,3 +173,41 @@ export type BankBranckObject = {
   name: string | undefined;
   bankCode: string | undefined;
 };
+
+export type TypeGoodObject = {
+  name?: string | undefined | null;
+  image?: string | undefined | null;
+  typeGoodCode?: string | undefined | null;
+  numberOfProduct?: number | undefined;
+  numberOfAttr?: number | undefined;
+};
+
+export type BankUserObject = {
+  userLogin?: string | undefined | null;
+  bankUserCode?: number | undefined | null;
+  accountNumber?: string | undefined | null;
+  accountName?: string | undefined | null;
+  bankName?: string | undefined | null;
+  bankCode?: number | undefined | null;
+  bankBranchCode?: number | undefined | null;
+  bankBranchName?: string | undefined | null;
+  bankImage?: string | undefined | null;
+  bankStatus?: string | undefined | null;
+};
+
+export type TypeGoodAttrObject = {
+  name?: string | undefined | null;
+  typeGoodCode?: string | undefined | null;
+  typeGoodAttrCode?: string | undefined | null;
+  numberOfProductAttr?: number | undefined | null;
+};
+
+export type DiscountObject = {
+  discountCode?: string | undefined | null;
+  name?: string | undefined | null;
+  description?: string | undefined | null;
+  beginDate?: string | undefined | null;
+  percentDecrease?: number | undefined | null;
+  numberOfOrderDetail?: number | undefined | null;
+  numberOfProductDetail?: number | undefined | null;
+};

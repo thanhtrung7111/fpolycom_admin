@@ -26,6 +26,10 @@ import DistrictPage from "./page/district/DistrictPage";
 import WardPage from "./page/ward/WardPage";
 import BankPage from "./page/bank/BankPage";
 import BankBranchPage from "./page/bank_branch/BankBranchPage";
+import TypeGoodPage from "./page/type_good/TypeGoodPage";
+import BankUserPage from "./page/bank_user/BankUserPage";
+import TypeGoodAttrPage from "./page/type_good_attr/TypeGoodAttrPage";
+import DiscountPage from "./page/discount/DiscountPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -66,6 +70,22 @@ function App() {
             <Route
               element={<BankBranchPage></BankBranchPage>}
               path="/bank_branch"
+            ></Route>
+            <Route
+              element={<TypeGoodPage></TypeGoodPage>}
+              path="/type_good"
+            ></Route>
+            <Route
+              element={<TypeGoodAttrPage></TypeGoodAttrPage>}
+              path="/type_good_attr"
+            ></Route>
+            <Route
+              element={<DiscountPage></DiscountPage>}
+              path="/discount"
+            ></Route>
+            <Route
+              element={<BankUserPage></BankUserPage>}
+              path="/bank_user"
             ></Route>
           </Route>
           <Route
