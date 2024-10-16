@@ -123,6 +123,27 @@ const menu: any[] = [
         ],
       },
       {
+        itemName: "Thanh toán",
+        itemIcon: <i className="ri-box-3-line"></i>,
+        itemList: [
+          {
+            itemName: "Loại thanh toán",
+            itemIcon: <i className="ri-bank-card-line"></i>,
+            link: "/type_good",
+          },
+          {
+            itemName: "Giao dịch cửa hàng",
+            itemIcon: <i className="ri-account-box-line"></i>,
+            link: "/discount",
+          },
+          {
+            itemName: "Giao dịch người dùng",
+            itemIcon: <i className="ri-store-line"></i>,
+            link: "/bank_store",
+          },
+        ],
+      },
+      {
         itemName: "Bài viết",
         itemIcon: <i className="ri-newspaper-line"></i>,
         link: "/post",
