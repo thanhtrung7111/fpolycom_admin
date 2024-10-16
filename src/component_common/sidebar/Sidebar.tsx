@@ -116,7 +116,7 @@ const menu: any[] = [
             link: "/discount",
           },
           {
-            itemName: "Tài khoản cửa hàng",
+            itemName: "Danh sách",
             itemIcon: <i className="ri-store-line"></i>,
             link: "/bank_store",
           },
@@ -144,14 +144,9 @@ const menu: any[] = [
         ],
       },
       {
-        itemName: "Bài viết",
+        itemName: "Cửa hàng",
         itemIcon: <i className="ri-newspaper-line"></i>,
         link: "/post",
-      },
-      {
-        itemName: "Khuyến mãi",
-        itemIcon: <i className="ri-ticket-2-line"></i>,
-        link: "/promotion",
       },
       {
         itemName: "Tin nhắn",
