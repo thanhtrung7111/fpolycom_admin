@@ -1,7 +1,10 @@
 import { fetchData, postData } from "@/api/commonApi";
 import ButtonForm from "@/component_common/commonForm/ButtonForm";
+import DatePickerFormikForm from "@/component_common/commonForm/DatePickerFormikForm";
 import InputFormikForm from "@/component_common/commonForm/InputFormikForm";
+import NumberFormikForm from "@/component_common/commonForm/NumberFormikForm";
 import SelectFormikForm from "@/component_common/commonForm/SelectFormikForm";
+import TextareaFormikForm from "@/component_common/commonForm/TextareaFormikForm";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DistrictObject, ProvinceObject } from "@/type/TypeCommon";
+import {
+  DiscountObject,
+  DistrictObject,
+  ProvinceObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
@@ -23,43 +30,36 @@ const DiscountPageCreateDialog = ({
   open: boolean;
   onClose: () => void;
 }) => {
-  const {
-    data: dataProvince,
-    isError: isErrorProvinc,
-    isFetching: isFetchingProvince,
-    error: errorProvince,
-    isSuccess: isSuccessProvince,
-  } = useQuery({
-    queryKey: ["provinces"],
-    queryFn: () => fetchData("/admin/province/all"),
-  });
   const queryClient = useQueryClient();
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không để trống tên Phường/Huyện"),
-    provinceCode: Yup.string().required("Không để trống Tỉnh/Thành Phố"),
+    name: Yup.string().required("Không để trống tên discount!"),
+    description: Yup.string().required("Không để trống mô tả!"),
+    percentDecrease: Yup.number()
+      .required("Không để trống mô tả!")
+      .min(0, "Giá trị trị min là 1!")
+      .max(100, "Giá trị max là 100!"),
+    beginDate: Yup.string().required("Không để trống ngày bắt đầu!"),
   });
 
   const handlePost = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/district/new"),
-    onSuccess: (data: DistrictObject) => {
-      if (queryClient.getQueryData(["districts"])) {
-        queryClient.setQueryData(["districts"], (oldData: DistrictObject[]) => {
+      postData(body, "/admin/discount/new"),
+    onSuccess: (data: DiscountObject) => {
+      if (queryClient.getQueryData(["discounts"])) {
+        queryClient.setQueryData(["discounts"], (oldData: DiscountObject[]) => {
           const resultData = data;
           console.log(resultData);
           return [resultData, ...oldData];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "districts",
+          predicate: (query) => query.queryKey[0] === "discounts",
         });
       }
     },
   });
 
-  const handleSubmit = async (
-    values: typeof validationSchema
-  ): Promise<void> => {
+  const handleSubmit = async (values: any): Promise<void> => {
     await handlePost.mutateAsync(values);
   };
   return (
@@ -73,10 +73,15 @@ const DiscountPageCreateDialog = ({
     >
       <DialogContent className="sm:max-w-[500px]">
         <Formik
-          key={"formCreateDistrict"}
-          initialValues={{ name: "" }}
+          key={"formCrateDiscount"}
+          initialValues={{
+            name: "",
+            description: "",
+            beginDate: "",
+            percentDecrease: 0,
+          }}
           validationSchema={validationSchema}
-          onSubmit={(values: any) => {
+          onSubmit={(values) => {
             console.log("Hello");
             handleSubmit(values);
           }}
@@ -91,28 +96,40 @@ const DiscountPageCreateDialog = ({
           }) => (
             <Form id="formCreateProduct">
               <DialogHeader>
-                <DialogTitle className="mb-5">
-                  Thêm mới Phường/Huyện
-                </DialogTitle>
+                <DialogTitle className="mb-5">Thêm mới discount</DialogTitle>
 
                 {!handlePost.isSuccess ? (
                   <div className="flex flex-col gap-y-4 px-1">
                     <DialogDescription className="flex flex-col gap-y-3">
                       <InputFormikForm
-                        label="Tên Phường/Huyện"
+                        label="Tên discount"
                         name="name"
+                        placeholder="Nhập tên discount..."
                         important={true}
                         disabled={handlePost.isPending}
                       ></InputFormikForm>
-                      <SelectFormikForm
-                        options={dataProvince ? dataProvince : []}
-                        loading={isFetchingProvince}
-                        itemKey={"provinceCode"}
-                        itemValue={"name"}
+                      <DatePickerFormikForm
+                        disabled={false}
                         important={true}
-                        name="provinceCode"
-                        label={"Tỉnh/Thành phố"}
-                      ></SelectFormikForm>
+                        name="beginDate"
+                        label="Thời gian bắt đầu"
+                      ></DatePickerFormikForm>
+                      <NumberFormikForm
+                        disabled={false}
+                        important={true}
+                        label="Phần trăm giảm"
+                        placeholder="Nhập phần trăm giảm..."
+                        unit="percentDecrease"
+                        name="dsdsD"
+                      ></NumberFormikForm>
+                      <TextareaFormikForm
+                        label="Mô tả discount"
+                        row={5}
+                        name="description"
+                        important={true}
+                        placeholder="Nhập mô tả discount..."
+                        disabled={handlePost.isPending}
+                      ></TextareaFormikForm>
                     </DialogDescription>
                     <DialogFooter>
                       <div className="flex gap-x-2 justify-end">

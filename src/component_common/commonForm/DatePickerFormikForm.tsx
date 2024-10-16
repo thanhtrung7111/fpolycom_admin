@@ -37,7 +37,7 @@ const DatePickerFormikForm = ({
     <div className="flex flex-col gap-y-1 w-full">
       {label && (
         <label htmlFor="">
-          <span className="text-gray-700 text-sm">{label} </span>{" "}
+          <span className="text-gray-700 text-sm font-medium">{label} </span>{" "}
           {important && <span className="text-red-500">*</span>}
         </label>
       )}

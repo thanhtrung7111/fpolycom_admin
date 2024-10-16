@@ -25,9 +25,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { fetchData } from "@/api/commonApi";
-import DistrictDeleteDialog from "./component/DistrictDeleteDialog";
-import DistrictUpdateDialog from "./component/DistrictUpdateDialog";
-import DistrictCreateDialog from "./component/DistrictCreateDialog";
 import DiscountPageDeleteDialog from "./component/DiscountPageDeleteDialog";
 import DiscountPageUpdateDialog from "./component/DiscountPageUpdateDialog";
 import DiscountPageCreateDialog from "./component/DiscountPageCreateDialog";
@@ -38,7 +35,7 @@ const DiscountPage = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["districts"],
+    queryKey: ["discounts"],
     queryFn: () => fetchData("/admin/discount/all"),
   });
   console.log("Hell");
@@ -86,7 +83,7 @@ const DiscountPage = () => {
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã Phường/Huyện
+            Mã discount
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -96,20 +93,20 @@ const DiscountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("districtCode")}</div>
+        <div className="capitalize">{row.getValue("discountCode")}</div>
       ),
       enableHiding: true,
     },
     {
       accessorKey: "name",
-      meta: "Tên Phường/Huyện",
+      meta: "Tên discount",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên Phường/Huyện
+            Tên discount
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -124,16 +121,15 @@ const DiscountPage = () => {
       enableHiding: true,
     },
     {
-      accessorKey: "provinceCode",
-      meta: "Tỉnh/Thành phố",
+      accessorKey: "percentDecrease",
+      meta: "Phần trăm giảm",
       header: ({ column }) => {
         return (
           <Button
-            className="hidden"
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Thuộc Tỉnh/Thành Phố
+            Phần trăm giảm
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -143,30 +139,7 @@ const DiscountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize hidden">{row.getValue("provinceCode")}</div>
-      ),
-      enableHiding: false,
-    },
-    {
-      accessorKey: "numberOfWards",
-      meta: "Số Thị xã/Thị trấn trực thuộc",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Số Thị xã trực thuộc
-            {column.getIsSorted() === "asc" ? (
-              <i className="ri-arrow-up-line"></i>
-            ) : (
-              <i className="ri-arrow-down-line"></i>
-            )}
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfWards")}</div>
+        <div className="capitalize">{row.getValue("percentDecrease")}%</div>
       ),
       enableHiding: true,
     },
@@ -239,7 +212,7 @@ const DiscountPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách quảng cáo
+            Danh sách discount
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -264,19 +237,8 @@ const DiscountPage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
-              { key: "districtCode", name: "mã Phường/Huyện", type: "text" },
-              { key: "name", name: "tên Phường/Huyện", type: "text" },
-              {
-                key: "provinceCode",
-                name: "Tỉnh/Thành phố",
-                type: "combobox",
-                dataKey: "provinceCode",
-                dataName: "name",
-                dataList:
-                  isSuccessProvince && dataProvince != undefined
-                    ? dataProvince
-                    : [],
-              },
+              { key: "discountCode", name: "mã discount", type: "text" },
+              { key: "name", name: "tên discount", type: "text" },
             ]}
             isLoading={isFetching}
           ></TableCustom>

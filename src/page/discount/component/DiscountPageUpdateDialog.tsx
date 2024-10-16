@@ -1,7 +1,10 @@
 import { fetchData, postData } from "@/api/commonApi";
 import ButtonForm from "@/component_common/commonForm/ButtonForm";
+import DatePickerFormikForm from "@/component_common/commonForm/DatePickerFormikForm";
 import InputFormikForm from "@/component_common/commonForm/InputFormikForm";
+import NumberFormikForm from "@/component_common/commonForm/NumberFormikForm";
 import SelectFormikForm from "@/component_common/commonForm/SelectFormikForm";
+import TextareaFormikForm from "@/component_common/commonForm/TextareaFormikForm";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +13,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DistrictObject, ProvinceObject } from "@/type/TypeCommon";
+import {
+  DiscountObject,
+  DistrictObject,
+  ProvinceObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Form, Formik } from "formik";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
@@ -23,56 +31,52 @@ const DiscountPageUpdateDialog = ({
 }: {
   open: boolean;
   onClose: () => void;
-  item: DistrictObject | null;
+  item: DiscountObject | null;
 }) => {
-  const {
-    data: dataProvince,
-    isError: isErrorProvinc,
-    isFetching: isFetchingProvince,
-    error: errorProvince,
-    isSuccess: isSuccessProvince,
-  } = useQuery({
-    queryKey: ["provinces"],
-    queryFn: () => fetchData("/admin/province/all"),
-  });
   const queryClient = useQueryClient();
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không để trống tên Phường/Huyện"),
-    provinceCode: Yup.string().required("Không để trống Tỉnh/Thành Phố"),
+    name: Yup.string().required("Không để trống tên discount!"),
+    description: Yup.string().required("Không để trống mô tả!"),
+    discountCode: Yup.string().required("Không để trống mã discount!"),
+    percentDecrease: Yup.number()
+      .required("Không để trống mô tả!")
+      .min(0, "Giá trị trị min là 1!")
+      .max(100, "Giá trị max là 100!"),
+    beginDate: Yup.string().required("Không để trống ngày bắt đầu!"),
   });
 
-  const [initialValues, setInitialValues] = useState<DistrictObject>({
+  const [initialValues, setInitialValues] = useState<DiscountObject>({
     name: "",
-    provinceCode: "",
-    districtCode: "",
+    description: "",
+    discountCode: "",
+    percentDecrease: 0,
+    beginDate: moment(new Date()).format("yyyy-MM-DD"),
   });
 
   const handleUpdate = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/district/update"),
-    onSuccess: (data: DistrictObject) => {
-      if (queryClient.getQueryData(["districts"])) {
-        queryClient.setQueryData(["districts"], (oldData: DistrictObject[]) => {
+      postData(body, "/admin/discount/update"),
+    onSuccess: (data: DiscountObject) => {
+      if (queryClient.getQueryData(["discounts"])) {
+        queryClient.setQueryData(["discounts"], (oldData: DiscountObject[]) => {
           const resultData = data;
           console.log(resultData);
           return [
             resultData,
             ...oldData.filter(
-              (item) => item.districtCode != resultData.districtCode
+              (item) => item.discountCode != resultData.discountCode
             ),
           ];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "districts",
+          predicate: (query) => query.queryKey[0] === "discounts",
         });
       }
     },
   });
 
-  const handleSubmit = async (
-    values: typeof validationSchema
-  ): Promise<void> => {
+  const handleSubmit = async (values: any): Promise<void> => {
     await handleUpdate.mutateAsync(values);
   };
 
@@ -80,8 +84,10 @@ const DiscountPageUpdateDialog = ({
     if (open == true) {
       setInitialValues({
         name: item?.name,
-        districtCode: item?.districtCode,
-        provinceCode: item?.provinceCode,
+        beginDate: item?.beginDate,
+        description: item?.description,
+        discountCode: item?.discountCode,
+        percentDecrease: item?.percentDecrease,
       });
     }
   }, [item, open]);
@@ -90,8 +96,10 @@ const DiscountPageUpdateDialog = ({
       open={open}
       onOpenChange={() => {
         if (!handleUpdate.isPending) {
-          handleUpdate.reset();
           onClose();
+          setTimeout(() => {
+            handleUpdate.reset();
+          }, 500);
         }
       }}
     >
@@ -116,27 +124,39 @@ const DiscountPageUpdateDialog = ({
           }) => (
             <Form>
               <DialogHeader>
-                <DialogTitle className="mb-5">
-                  Cập nhật Phường/Huyện
-                </DialogTitle>
+                <DialogTitle className="mb-5">Cập nhật discount</DialogTitle>
                 {!handleUpdate.isSuccess ? (
                   <div className="flex flex-col gap-y-4 px-1">
                     <DialogDescription className="flex flex-col gap-y-3">
                       <InputFormikForm
-                        label="Tên Phường/Huyện"
+                        label="Tên discount"
                         name="name"
+                        placeholder="Nhập tên discount..."
                         important={true}
                         disabled={handleUpdate.isPending}
                       ></InputFormikForm>
-                      <SelectFormikForm
-                        options={dataProvince ? dataProvince : []}
-                        loading={isFetchingProvince}
-                        itemKey={"provinceCode"}
-                        itemValue={"name"}
+                      <DatePickerFormikForm
+                        disabled={false}
                         important={true}
-                        name="provinceCode"
-                        label={"Tỉnh/Thành phố"}
-                      ></SelectFormikForm>
+                        name="beginDate"
+                        label="Thời gian bắt đầu"
+                      ></DatePickerFormikForm>
+                      <NumberFormikForm
+                        disabled={false}
+                        important={true}
+                        label="Phần trăm giảm"
+                        placeholder="Nhập phần trăm giảm..."
+                        unit="%"
+                        name="percentDecrease"
+                      ></NumberFormikForm>
+                      <TextareaFormikForm
+                        label="Mô tả discount"
+                        row={5}
+                        name="description"
+                        important={true}
+                        placeholder="Nhập mô tả discount..."
+                        disabled={handleUpdate.isPending}
+                      ></TextareaFormikForm>
                     </DialogDescription>
                     <DialogFooter>
                       <div className="flex gap-x-2 justify-end">
@@ -154,8 +174,10 @@ const DiscountPageUpdateDialog = ({
                           disabled={handleUpdate.isPending}
                           onClick={() => {
                             onClose();
-                            handleUpdate.reset();
-                            resetForm();
+                            setTimeout(() => {
+                              handleUpdate.reset();
+                              resetForm();
+                            }, 500);
                           }}
                         ></ButtonForm>
                       </div>
@@ -176,8 +198,10 @@ const DiscountPageUpdateDialog = ({
                         label="Hủy"
                         onClick={() => {
                           onClose();
-                          handleUpdate.reset();
-                          resetForm();
+                          setTimeout(() => {
+                            handleUpdate.reset();
+                            resetForm();
+                          }, 500);
                         }}
                       ></ButtonForm>
                     </div>

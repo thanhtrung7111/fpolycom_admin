@@ -8,7 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DistrictObject, ProvinceObject } from "@/type/TypeCommon";
+import {
+  DiscountObject,
+  DistrictObject,
+  ProvinceObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 
@@ -18,28 +22,28 @@ const DiscountPageDeleteDialog = ({
   onClose,
 }: {
   open: boolean;
-  item: DistrictObject | null;
+  item: DiscountObject | null;
   onClose: () => void;
 }) => {
   const queryClient = useQueryClient();
 
   const handleDelete = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/district/delete"),
-    onSuccess: (data: DistrictObject) => {
-      if (queryClient.getQueryData(["districts"])) {
-        queryClient.setQueryData(["districts"], (oldData: DistrictObject[]) => {
+      postData(body, "/admin/discount/delete"),
+    onSuccess: (data: DiscountObject) => {
+      if (queryClient.getQueryData(["discounts"])) {
+        queryClient.setQueryData(["discounts"], (oldData: DiscountObject[]) => {
           const resultData = data;
           console.log(resultData);
           return [
             ...oldData.filter(
-              (item) => item.districtCode != resultData.districtCode
+              (item) => item.discountCode != resultData.discountCode
             ),
           ];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "districts",
+          predicate: (query) => query.queryKey[0] === "discounts",
         });
       }
     },
@@ -75,7 +79,7 @@ const DiscountPageDeleteDialog = ({
                     <>
                       <i className="ri-delete-bin-line text-gray-700 text-xl"></i>
                       <span className="text-gray-700 text-base">
-                        Bạn có muốn xóa Phường/Huyện
+                        Bạn có muốn xóa discount
                         <b className="text-gray-500"> {item?.name}</b> ?
                       </span>
                     </>
@@ -89,7 +93,7 @@ const DiscountPageDeleteDialog = ({
                     loading={handleDelete.isPending}
                     onClick={async () => {
                       await handleDelete.mutateAsync({
-                        districtCode: item?.districtCode,
+                        discountCode: item?.discountCode,
                       });
                     }}
                   ></ButtonForm>

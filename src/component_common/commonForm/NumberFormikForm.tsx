@@ -19,13 +19,17 @@ const NumberFormikForm = ({
 }) => {
   const [field, meta, helpers] = useField(name);
   const [value, setValue] = useState("");
+
   useEffect(() => {
-    if (value == "") {
-      helpers.setValue(0);
-      return;
-    }
-    helpers.setValue(Number.parseFloat(value.replace(/,/g, "")));
-  }, [value]);
+    const inputValueConvert = parseInt(
+      field.value.toString().replace(/,/g, "")
+    );
+    const formattedValue = inputValueConvert
+      ? inputValueConvert.toLocaleString()
+      : "";
+    setValue(formattedValue);
+  }, [field.value]);
+
   return (
     <div className="flex flex-col gap-y-1 w-full">
       <label htmlFor="">
@@ -45,20 +49,20 @@ const NumberFormikForm = ({
           type="text"
           disabled={disabled}
           placeholder={placeholder}
+          onBlur={() => {
+            if (field.value == 0) {
+              setValue("0");
+            }
+          }}
           onChange={(e) => {
             const inputValue = e.target.value;
             if (inputValue == "") {
-              setValue("");
+              helpers.setValue(0);
               return;
             }
             if (inputValue.match(/^\d*(,?\d*)*\d$/)) {
               const inputValueConvert = parseInt(inputValue.replace(/,/g, ""));
-              const formattedValue = inputValueConvert
-                ? inputValueConvert.toLocaleString()
-                : "";
-              console.log(inputValue);
-              setValue(formattedValue);
-            } else {
+              helpers.setValue(inputValueConvert);
             }
           }}
           value={value}
