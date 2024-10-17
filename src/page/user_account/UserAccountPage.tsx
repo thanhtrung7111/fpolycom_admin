@@ -369,23 +369,15 @@ const UserAccountPage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
-              { key: "productCode", name: "mã sản phẩm", type: "text" },
-              { key: "name", name: "tên sản phẩm", type: "text" },
-              {
-                key: "typeGoodCode",
-                name: "Loại hàng",
-                type: "combobox",
-                dataKey: "typeGoodCode",
-                dataName: "name",
-                dataList: dataTypeGood ? dataTypeGood : [],
-              },
+              { key: "userAccountID", name: "mã người dùng", type: "text" },
+              { key: "userLogin", name: "tên đăng nhập", type: "text" },
               {
                 key: "status",
                 name: "Trạng thái",
                 type: "combobox",
                 dataKey: "name",
                 dataName: "description",
-                dataList: dataProductStatus ? dataProductStatus : [],
+                dataList: dataUserStatus ? dataUserStatus : [],
               },
             ]}
             isLoading={isFetching}
