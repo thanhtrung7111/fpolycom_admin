@@ -14,10 +14,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DiscountObject,
   DistrictObject,
+  PaymentTypeObject,
   ProvinceObject,
-  TypeGoodObject,
-  WardObject,
 } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
@@ -26,9 +26,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { fetchData } from "@/api/commonApi";
-import TypeGoodDeleteDialog from "./component/TypeGoodDeleteDialog";
-import TypeGoodUpdateDialog from "./component/TypeGoodUpdateDialog";
-import TypeGoodCreateDialog from "./component/TypeGoodCreateDialog";
+import PaymentTypeDeleteDialog from "./component/PaymentTypeDeleteDialog";
+import PaymentTypeUpdateDialog from "./component/PaymentTypeUpdateDialog";
+import PaymentTypeCreateDialog from "./component/PaymentTypeCreateDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,29 +37,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const TypeGoodPage = () => {
+const PaymentTypePage = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TypeGoodObject | null>(null);
+  const [selectedItem, setSelectedItem] = useState<PaymentTypeObject | null>(
+    null
+  );
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["typeGoods"],
-    queryFn: () => fetchData("/admin/typegood/all"),
+    queryKey: ["paymentTypes"],
+    queryFn: () => fetchData("/admin/payment-type/all"),
   });
-  console.log("Hell");
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Sản phẩm",
+      itemName: "Thanh toán",
     },
     {
-      itemName: "Danh sách loại hàng",
-      itemLink: "/type_good",
+      itemName: "Loại thanh toán",
+      itemLink: "/payment_type",
     },
   ];
-  const columns: ColumnDef<TypeGoodObject>[] = [
+  const columns: ColumnDef<PaymentTypeObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -83,15 +84,15 @@ const TypeGoodPage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "typeGoodCode",
-      meta: "Mã loại hàng",
+      accessorKey: "paymentTypeCode",
+      meta: "Mã loại thanh toán",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã loại hàng
+            Mã loại thanh toán
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -101,20 +102,20 @@ const TypeGoodPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("typeGoodCode")}</div>
+        <div className="capitalize">{row.getValue("paymentTypeCode")}</div>
       ),
       enableHiding: true,
     },
     {
       accessorKey: "name",
-      meta: "Tên loại hàng",
+      meta: "Tên loại thanh toán",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên loại hàng
+            Tên loại thanh toán
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -125,52 +126,6 @@ const TypeGoodPage = () => {
       },
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("name")}</div>
-      ),
-      enableHiding: true,
-    },
-    {
-      accessorKey: "numberOfProduct",
-      meta: "Tổng sản phẩm",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Tổng sản phẩm
-            {column.getIsSorted() === "asc" ? (
-              <i className="ri-arrow-up-line"></i>
-            ) : (
-              <i className="ri-arrow-down-line"></i>
-            )}
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfProduct")}</div>
-      ),
-      enableHiding: true,
-    },
-    {
-      accessorKey: "numberOfAttr",
-      meta: "Tổng thuộc tính",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Tổng thuộc tính
-            {column.getIsSorted() === "asc" ? (
-              <i className="ri-arrow-up-line"></i>
-            ) : (
-              <i className="ri-arrow-down-line"></i>
-            )}
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfAttr")}</div>
       ),
       enableHiding: true,
     },
@@ -217,20 +172,20 @@ const TypeGoodPage = () => {
   ];
   return (
     <>
-      <TypeGoodDeleteDialog
+      <PaymentTypeDeleteDialog
         item={selectedItem}
         open={openDelete}
         onClose={() => setOpenDelete(false)}
-      ></TypeGoodDeleteDialog>
-      <TypeGoodUpdateDialog
+      ></PaymentTypeDeleteDialog>
+      <PaymentTypeUpdateDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
-      ></TypeGoodUpdateDialog>
-      <TypeGoodCreateDialog
+      ></PaymentTypeUpdateDialog>
+      <PaymentTypeCreateDialog
         open={openNew}
         onClose={() => setOpenNew(false)}
-      ></TypeGoodCreateDialog>
+      ></PaymentTypeCreateDialog>
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
           <BreadcrumbCustom
@@ -243,7 +198,7 @@ const TypeGoodPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách loại hàng
+            Danh sách loại thanh toán
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -268,8 +223,12 @@ const TypeGoodPage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
-              { key: "typeGoodCode", name: "mã loại hàng", type: "text" },
-              { key: "name", name: "tên loại hàng", type: "text" },
+              {
+                key: "paymentTypeCode",
+                name: "mã loại thanh toán",
+                type: "text",
+              },
+              { key: "name", name: "tên loại thanh toán", type: "text" },
             ]}
             isLoading={isFetching}
           ></TableCustom>
@@ -279,4 +238,4 @@ const TypeGoodPage = () => {
   );
 };
 
-export default TypeGoodPage;
+export default PaymentTypePage;

@@ -30,6 +30,8 @@ import TypeGoodPage from "./page/type_good/TypeGoodPage";
 import BankUserPage from "./page/bank_user/BankUserPage";
 import TypeGoodAttrPage from "./page/type_good_attr/TypeGoodAttrPage";
 import DiscountPage from "./page/discount/DiscountPage";
+import PaymentTypePage from "./page/payment_type/PaymentTypePage";
+import StoreTransactionPage from "./page/store_transaction/StoreTransactionPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -82,6 +84,14 @@ function App() {
             <Route
               element={<DiscountPage></DiscountPage>}
               path="/discount"
+            ></Route>
+            <Route
+              element={<PaymentTypePage></PaymentTypePage>}
+              path="/payment_type"
+            ></Route>
+            <Route
+              element={<StoreTransactionPage></StoreTransactionPage>}
+              path="/store_transaction"
             ></Route>
             <Route
               element={<BankUserPage></BankUserPage>}

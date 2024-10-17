@@ -24,6 +24,13 @@ import ProvinceCreateDialog from "./component/ProvinceCreateDialog";
 import ProvinceUpdateDialog from "./component/ProvinceUpdateDialog";
 import { fetchData } from "@/api/commonApi";
 import ProvinceDeleteDialog from "./component/ProvinceDeleteDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ProvincePage = () => {
   const [openNew, setOpenNew] = useState(false);
@@ -145,33 +152,33 @@ const ProvincePage = () => {
         const payment = row.original;
 
         return (
-          <div className="flex gap-x-2 justify-end">
-            <ButtonForm
-              onClick={() => {
-                setSelectedItem(row.original);
-                setOpenUpdate(true);
-              }}
-              className="!bg-yellow-500 !w-28 text-sm"
-              type="button"
-              icon={<i className="ri-error-warning-line"></i>}
-              label="Xem chi tiết"
-            ></ButtonForm>
-
-            <ButtonForm
-              className="!bg-red-500 !w-20  text-sm disabled:!bg-slate-500"
-              type="button"
-              // disabled={handleDelete.isPending}
-              //   loading={
-              //     row.original.KKKK0000 == bodyDelete && handleDelete.isPending
-              //   }
-              onClick={async () => {
-                setSelectedItem(row.original);
-                setOpenDelete(true);
-              }}
-              icon={<i className="ri-delete-bin-line"></i>}
-              label="Xóa"
-            ></ButtonForm>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="ml-auto pr-5">
+              <div className="w-16 text-end cursor-pointer">
+                <i className="ri-menu-line text-xl text-gray-600"></i>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedItem(row.original);
+                    setOpenUpdate(true);
+                  }}
+                >
+                  <span>Xem chi tiết</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    setSelectedItem(row.original);
+                    setOpenDelete(true);
+                  }}
+                >
+                  <span>Xóa</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },

@@ -14,10 +14,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DiscountObject,
   DistrictObject,
+  PaymentTypeObject,
   ProvinceObject,
-  TypeGoodObject,
-  WardObject,
+  StoreTransactonObject,
 } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
@@ -25,10 +26,8 @@ import { Form, Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { fetchData } from "@/api/commonApi";
-import TypeGoodDeleteDialog from "./component/TypeGoodDeleteDialog";
-import TypeGoodUpdateDialog from "./component/TypeGoodUpdateDialog";
-import TypeGoodCreateDialog from "./component/TypeGoodCreateDialog";
+import { fetchData, postData } from "@/api/commonApi";
+import StoreTransactionDetailDialog from "./component/StoreTransactionDetailDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,29 +36,50 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const TypeGoodPage = () => {
+const StoreTransactionPage = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TypeGoodObject | null>(null);
+  const [selectedItem, setSelectedItem] =
+    useState<StoreTransactonObject | null>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["typeGoods"],
-    queryFn: () => fetchData("/admin/typegood/all"),
+    queryKey: ["storeTransactions"],
+    queryFn: () => fetchData("/admin/store-transaction/all"),
   });
-  console.log("Hell");
+  const handleConfirm = useMutation({
+    mutationFn: (body: { [key: string]: any }) =>
+      postData(body, "/admin/payment-type/new"),
+    onSuccess: (data: PaymentTypeObject) => {
+      if (queryClient.getQueryData(["paymentTypes"])) {
+        queryClient.setQueryData(
+          ["paymentTypes"],
+          (oldData: PaymentTypeObject[]) => {
+            const resultData = data;
+            console.log(resultData);
+            return [resultData, ...oldData];
+          }
+        );
+      } else {
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "paymentTypes",
+        });
+      }
+    },
+  });
+
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Sản phẩm",
+      itemName: "Thanh toán",
     },
     {
-      itemName: "Danh sách loại hàng",
-      itemLink: "/type_good",
+      itemName: "Giao dịch cửa hàng",
+      itemLink: "/payment_type",
     },
   ];
-  const columns: ColumnDef<TypeGoodObject>[] = [
+  const columns: ColumnDef<StoreTransactonObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -83,15 +103,15 @@ const TypeGoodPage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "typeGoodCode",
-      meta: "Mã loại hàng",
+      accessorKey: "storeTransactionCode",
+      meta: "Mã giao dịch cửa hàng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã loại hàng
+            Mã giao dịch cửa hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -101,20 +121,20 @@ const TypeGoodPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("typeGoodCode")}</div>
+        <div className="capitalize">{row.getValue("storeTransactionCode")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "name",
-      meta: "Tên loại hàng",
+      accessorKey: "storeName",
+      meta: "Cửa hàng giao dịch",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên loại hàng
+            Cửa hàng giao dịch
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -124,20 +144,20 @@ const TypeGoodPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div className="capitalize">{row.getValue("storeName")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "numberOfProduct",
-      meta: "Tổng sản phẩm",
+      accessorKey: "bankName",
+      meta: "Ngân hàng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tổng sản phẩm
+            Ngân hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -147,20 +167,20 @@ const TypeGoodPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfProduct")}</div>
+        <div className="capitalize">{row.getValue("bankName")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "numberOfAttr",
-      meta: "Tổng thuộc tính",
+      accessorKey: "bankAccountName",
+      meta: "Tên TK",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tổng thuộc tính
+            Tên TK
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -170,7 +190,65 @@ const TypeGoodPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("numberOfAttr")}</div>
+        <div className="capitalize">{row.getValue("bankAccountName")}</div>
+      ),
+      enableHiding: true,
+    },
+    {
+      accessorKey: "bankAccountNumber",
+      meta: "Số TK",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Số TK
+            {column.getIsSorted() === "asc" ? (
+              <i className="ri-arrow-up-line"></i>
+            ) : (
+              <i className="ri-arrow-down-line"></i>
+            )}
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("bankAccountNumber")}</div>
+      ),
+      enableHiding: true,
+    },
+    {
+      accessorKey: "transactionStatus",
+      meta: "Trạng thái",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Trạng thái
+            {column.getIsSorted() === "asc" ? (
+              <i className="ri-arrow-up-line"></i>
+            ) : (
+              <i className="ri-arrow-down-line"></i>
+            )}
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="capitalize">
+          <span
+            className={`${
+              row.getValue("transactionStatus") == "pending"
+                ? "text-yellow-600"
+                : row.getValue("transactionStatus") == "failed"
+                ? "text-red-700"
+                : "text-green-700"
+            } font-semibold`}
+          >
+            {row.getValue("transactionStatus")}
+          </span>
+        </div>
       ),
       enableHiding: true,
     },
@@ -185,29 +263,34 @@ const TypeGoodPage = () => {
 
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild className="ml-auto pr-5">
+            <DropdownMenuTrigger asChild>
               <div className="w-16 text-end cursor-pointer">
                 <i className="ri-menu-line text-xl text-gray-600"></i>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuContent className="w-56">
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedItem(row.original);
-                    setOpenUpdate(true);
-                  }}
-                >
-                  <span>Xem chi tiết</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async () => {
-                    setSelectedItem(row.original);
-                    setOpenDelete(true);
-                  }}
-                >
-                  <span>Xóa</span>
-                </DropdownMenuItem>
+                {row.original.transactionStatus == "pending" && (
+                  <>
+                    <DropdownMenuItem>
+                      <span>Xem chi tiết</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <span>Xác nhận</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <span>Từ chối</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {(row.original.transactionStatus == "complete" ||
+                  row.original.transactionStatus == "failed") && (
+                  <>
+                    <DropdownMenuItem>
+                      <span>Xem chi tiết</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -217,20 +300,11 @@ const TypeGoodPage = () => {
   ];
   return (
     <>
-      <TypeGoodDeleteDialog
-        item={selectedItem}
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-      ></TypeGoodDeleteDialog>
-      <TypeGoodUpdateDialog
+      <StoreTransactionDetailDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
-      ></TypeGoodUpdateDialog>
-      <TypeGoodCreateDialog
-        open={openNew}
-        onClose={() => setOpenNew(false)}
-      ></TypeGoodCreateDialog>
+      ></StoreTransactionDetailDialog>
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
           <BreadcrumbCustom
@@ -243,7 +317,7 @@ const TypeGoodPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách loại hàng
+            Danh sách loại thanh toán
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -268,8 +342,12 @@ const TypeGoodPage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
-              { key: "typeGoodCode", name: "mã loại hàng", type: "text" },
-              { key: "name", name: "tên loại hàng", type: "text" },
+              {
+                key: "paymentTypeCode",
+                name: "mã loại thanh toán",
+                type: "text",
+              },
+              { key: "name", name: "tên loại thanh toán", type: "text" },
             ]}
             isLoading={isFetching}
           ></TableCustom>
@@ -279,4 +357,4 @@ const TypeGoodPage = () => {
   );
 };
 
-export default TypeGoodPage;
+export default StoreTransactionPage;

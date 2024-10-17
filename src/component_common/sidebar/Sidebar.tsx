@@ -129,12 +129,12 @@ const menu: any[] = [
           {
             itemName: "Loại thanh toán",
             itemIcon: <i className="ri-bank-card-line"></i>,
-            link: "/type_good",
+            link: "/payment_type",
           },
           {
             itemName: "Giao dịch cửa hàng",
             itemIcon: <i className="ri-account-box-line"></i>,
-            link: "/discount",
+            link: "/store_transaction",
           },
           {
             itemName: "Giao dịch người dùng",

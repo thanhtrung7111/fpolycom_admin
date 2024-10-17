@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CommonObject } from "@/type/TypeCommon";
 import { Check, ChevronsUpDown } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { any } from "zod";
 const frameworks = [
   {
@@ -52,6 +52,7 @@ const ComboboxCustom = ({
   dataName: keyof CommonObject;
   placeholder?: string;
 }) => {
+  const [dataFilter, setDataFilter] = useState<any>([]);
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<any>("");
   useEffect(() => {
@@ -59,7 +60,21 @@ const ComboboxCustom = ({
       if (onChange) onChange(value);
     }
   }, [value]);
-  console.log(dataList);
+  useEffect(() => {
+    setDataFilter(dataList);
+  }, [dataList]);
+
+  const handleSearch = (e: string) => {
+    if (e == "") {
+      setDataFilter(dataList);
+    } else {
+      setDataFilter(
+        dataList.filter(
+          (item) => item[dataName].toLowerCase().indexOf(e.toLowerCase()) >= 0
+        )
+      );
+    }
+  };
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -78,30 +93,34 @@ const ComboboxCustom = ({
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0 w">
         <Command>
-          <CommandInput placeholder="Nhập tìm kiếm..." />
+          <CommandInput
+            placeholder="Nhập tìm kiếm..."
+            onValueChange={(e) => {
+              handleSearch(e);
+            }}
+          />
           <CommandList>
             <CommandEmpty>Không có danh sách.</CommandEmpty>
-            <CommandGroup>
-              {(dataList.length > 0 ? dataList : []).map((item) => (
-                <CommandItem
-                  key={item[dataKey]}
-                  value={item[dataKey]}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue == value ? "" : currentValue);
-                    console.log(currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === item[dataKey] ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {item[dataName]}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+
+            {dataFilter.map((item: any) => (
+              <CommandItem
+                key={item[dataKey]}
+                value={item[dataKey]}
+                onSelect={(currentValue) => {
+                  setValue(currentValue == value ? "" : currentValue);
+                  console.log(currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === item[dataKey] ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {item[dataName]}
+              </CommandItem>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

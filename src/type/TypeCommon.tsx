@@ -211,3 +211,24 @@ export type DiscountObject = {
   numberOfOrderDetail?: number | undefined | null;
   numberOfProductDetail?: number | undefined | null;
 };
+
+export type PaymentTypeObject = {
+  paymentTypeCode?: string | undefined | null;
+  name?: string | undefined | null;
+  image?: string | undefined;
+};
+
+export type StoreTransactonObject = {
+  totalAmount?: number | undefined | null;
+  storeCode?: number | undefined | null;
+  storeName?: string | undefined | null;
+  storeTransactionCode?: number | undefined | null;
+  content?: string | undefined | null;
+  bankBranchName?: string | undefined | null;
+  bankName?: string | undefined | null;
+  bankStoreCode?: string | undefined | null;
+  transactionStatus?: string | undefined | null;
+  bankAccountName?: string | undefined | null;
+  bankAccountNumber?: string | undefined | null;
+  typeTransaction?: string | undefined | null;
+};
