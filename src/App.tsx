@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "@/page/home/HomePage";
 import AppCommon from "./template/AppCommon";
-import ProductPage from "./page/product/ProductPage";
 import AdvertisementPage from "./page/advertisement/AdvertisementPage";
 import DashboardProductPage from "./page/dashboard_product/DashboardProductPage";
 import DashboardRevenuePage from "./page/dashboard_revenue/DashboardRevenuePage";
@@ -32,6 +31,7 @@ import TypeGoodAttrPage from "./page/type_good_attr/TypeGoodAttrPage";
 import DiscountPage from "./page/discount/DiscountPage";
 import PaymentTypePage from "./page/payment_type/PaymentTypePage";
 import StoreTransactionPage from "./page/store_transaction/StoreTransactionPage";
+import ProductPage from "./page/product/ProductPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -84,6 +84,10 @@ function App() {
             <Route
               element={<DiscountPage></DiscountPage>}
               path="/discount"
+            ></Route>
+            <Route
+              element={<ProductPage></ProductPage>}
+              path="/product"
             ></Route>
             <Route
               element={<PaymentTypePage></PaymentTypePage>}

@@ -1,38 +1,18 @@
 import BreadcrumbCustom from "@/component_common/breadcrumb/BreadcrumbCustom";
 import ButtonForm from "@/component_common/commonForm/ButtonForm";
-import InputFormikForm from "@/component_common/commonForm/InputFormikForm";
-import SpinnerLoading from "@/component_common/loading/SpinnerLoading";
 import TableCustom from "@/component_common/table/TableCustom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  BankBranckObject,
-  BankUserObject,
-  DistrictObject,
-  ProvinceObject,
-  WardObject,
-} from "@/type/TypeCommon";
+import { BankUserObject } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Form, Formik } from "formik";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { fetchData } from "@/api/commonApi";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 // import BankBranchUpdateDialog from "./component/BankBranchUpdateDialog";
 // import BankBranchDeleteDialog from "./component/BankBranchDeleteDialog";
 // import BankBranchCreateDialog from "./component/BankBranchCreateDialog";
@@ -218,33 +198,33 @@ const BankUserPage = () => {
         const payment = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="ml-auto pr-5">
-              <div className="w-16 text-end cursor-pointer">
+          <Popover>
+            <PopoverTrigger asChild>
+            <div className="w-16 text-end cursor-pointer ml-auto pr-5">
                 <i className="ri-menu-line text-xl text-gray-600"></i>
               </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedItem(row.original);
-                    setOpenUpdate(true);
-                  }}
-                >
-                  <span>Xem chi tiết</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async () => {
-                    setSelectedItem(row.original);
-                    setOpenDelete(true);
-                  }}
-                >
-                  <span>Xóa</span>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverTrigger>
+            <PopoverContent className="w-44" align="end">
+              <div
+                className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                onClick={() => {
+                  setSelectedItem(row.original);
+                  setOpenUpdate(true);
+                }}
+              >
+                <span>Xem chi tiết</span>
+              </div>
+              <div
+                className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                onClick={async () => {
+                  setSelectedItem(row.original);
+                  setOpenDelete(true);
+                }}
+              >
+                <span>Xóa</span>
+              </div>
+            </PopoverContent>
+          </Popover>
         );
       },
     },

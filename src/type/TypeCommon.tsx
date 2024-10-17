@@ -34,34 +34,7 @@ export type CompcodeObject = {
   LCTNLIST: LctnCodeObject[];
 };
 
-export type ProductObject = {
-  ACCERGHT: number;
-  COMPCODE: string;
-  CURRCODE: string;
-  CUSTCODE: string;
-  CUSTNAME: string;
-  DDDD: string;
-  DSCNAMNT: number;
-  DSCNRATE: number;
-  EXCHQTTY: number;
-  JSTFDATE: string;
-  KKKK0000: string;
-  PRCEDSCN: number;
-  PRCESALE: number;
-  PRDCBRIF: number;
-  PRDCCODE: number;
-  PRDCDESC: string;
-  PRDCIMGE: string;
-  PRDCNAME: string;
-  QUOMCODE: number;
-  QUOMNAME: string;
-  SHOPCODE: string;
-  SHOPNAME: string;
-  STTEICON: number;
-  STTENAME: string;
-  STTESIGN: number;
-  [key: string]: any;
-};
+
 
 export type Payment = {
   id: string;
@@ -231,4 +204,18 @@ export type StoreTransactonObject = {
   bankAccountName?: string | undefined | null;
   bankAccountNumber?: string | undefined | null;
   typeTransaction?: string | undefined | null;
+};
+
+export type ProductObject = {
+  productCode?: number | undefined | null;
+  name?: string | undefined | null;
+  image?: string | undefined | null;
+  status?: string | undefined | null;
+  typeGoodName?: string | undefined | null;
+  typeGoodCode?: string | undefined | null;
+  numberOfLikes?: number | undefined | null;
+  numberOfEvaluates?: number | undefined | null;
+  pointEvaluate?: number | undefined | null;
+  minPrice?: number | undefined | null;
+  maxPrice?: number | undefined | null;
 };

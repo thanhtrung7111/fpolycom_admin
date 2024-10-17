@@ -118,7 +118,7 @@ const menu: any[] = [
           {
             itemName: "Danh sách",
             itemIcon: <i className="ri-store-line"></i>,
-            link: "/bank_store",
+            link: "/product",
           },
         ],
       },

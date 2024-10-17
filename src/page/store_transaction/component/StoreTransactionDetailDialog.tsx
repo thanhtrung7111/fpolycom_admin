@@ -30,33 +30,31 @@ const FILE_SIZE = 1024 * 1024 * 2;
 const StoreTransactionDetailDialog = ({
   open = false,
   onClose,
+  item = null,
 }: {
   open: boolean;
   onClose: () => void;
+  item: StoreTransactonObject | null;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Không để trống tên loại thanh toán!"),
-    image: Yup.mixed()
-      .nullable()
-      .required("File is required")
-      .test("fileSize", "File too large", (value) => {
-        return value instanceof File && value.size <= FILE_SIZE;
-      }),
-  });
 
   const handlePost = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/payment-type/new"),
+      postData(body, "/admin/store-transaction/completed"),
     onSuccess: (data: StoreTransactonObject) => {
       if (queryClient.getQueryData(["storeTransactions"])) {
         queryClient.setQueryData(
           ["storeTransactions"],
           (oldData: StoreTransactonObject[]) => {
             const resultData = data;
-            console.log(resultData);
-            return [resultData, ...oldData];
+            return [
+              resultData,
+              ...oldData.filter(
+                (item) =>
+                  item.storeTransactionCode != resultData.storeTransactionCode
+              ),
+            ];
           }
         );
       } else {
@@ -67,173 +65,168 @@ const StoreTransactionDetailDialog = ({
     },
   });
 
-  const handleSubmit = async (values: any): Promise<void> => {
-    setIsLoading(true);
-    const body = {
-      ...values,
-      image: "",
-    };
-    if (values.image != null) {
-      const url = await uploadImage(values.image, "common");
-      body.image = url != undefined ? url : "";
-    }
-    await handlePost.mutateAsync(body);
-    setIsLoading(false);
+  const handlePostDeclined = useMutation({
+    mutationFn: (body: { [key: string]: any }) =>
+      postData(body, "/admin/store-transaction/declined"),
+    onSuccess: (data: StoreTransactonObject) => {
+      if (queryClient.getQueryData(["storeTransactions"])) {
+        queryClient.setQueryData(
+          ["storeTransactions"],
+          (oldData: StoreTransactonObject[]) => {
+            const resultData = data;
+            return [
+              resultData,
+              ...oldData.filter(
+                (item) =>
+                  item.storeTransactionCode != resultData.storeTransactionCode
+              ),
+            ];
+          }
+        );
+      } else {
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "storeTransactions",
+        });
+      }
+    },
+  });
+
+  const handleDeclined = async (): Promise<void> => {
+    await handlePostDeclined.mutateAsync({
+      storeTransactionCode: item?.storeTransactionCode,
+      content: "Thông tin giao dịch sai!",
+    });
+  };
+
+  const handleConfirm = async (): Promise<void> => {
+    await handlePost.mutateAsync({
+      storeTransactionCode: item?.storeTransactionCode,
+    });
   };
   return (
     <Dialog
       open={open}
       onOpenChange={() => {
-        if (!handlePost.isPending && !isLoading) {
+        if (!handlePost.isPending && !handlePostDeclined.isPending) {
           onClose();
           setTimeout(() => {
+            handlePostDeclined.reset();
             handlePost.reset();
           }, 500);
         }
       }}
     >
       <DialogContent className="sm:max-w-[500px]">
-        <Formik
-          key={"formCratePaymentType"}
-          initialValues={{
-            name: "",
-            image: null,
-          }}
-          validationSchema={validationSchema}
-          onSubmit={(values) => {
-            console.log("Hello");
-            handleSubmit(values);
-          }}
-        >
-          {({
-            setFieldValue,
-            handleChange,
-            values,
-            errors,
-            touched,
-            resetForm,
-          }) => (
-            <Form id="formCreateProduct">
-              <DialogHeader>
-                <DialogTitle className="mb-5">
-                  Thêm mới loại thanh toán
-                </DialogTitle>
+        <DialogTitle className="mb-5">Chi tiết giao dịch</DialogTitle>
 
-                {!handlePost.isSuccess ? (
-                  <div className="flex flex-col gap-y-4 px-1">
-                    <DialogDescription className="flex flex-col gap-y-3">
-                      <InputFormikForm
-                        label="Tên loại thanh toán"
-                        name="name"
-                        important={true}
-                        placeholder="Nhập tên loại thanh toán..."
-                        disabled={handlePost.isPending}
-                      ></InputFormikForm>
-
-                      <div>
-                        <label htmlFor="imageBank" className="mb-1 block">
-                          <span className="text-gray-700 font-medium text-sm">
-                            Hình ảnh loại thanh toán
-                          </span>
-                          <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="file"
-                          className="hidden"
-                          id="imageBank"
-                          name="image"
-                          onChange={(e) => {
-                            setFieldValue(
-                              "image",
-                              e.target.files && e.target.files.length > 0
-                                ? e.target.files[0]
-                                : null
-                            );
-                          }}
-                        />
-                        <label
-                          htmlFor="imageBank"
-                          className="h-24 w-32 block border border-gray-300 p-4"
-                        >
-                          <img
-                            src={
-                              values.image
-                                ? URL.createObjectURL(values.image)
-                                : "https://static.vecteezy.com/system/resources/thumbnails/050/140/627/small/add-image-icon-isolated-vector.jpg"
-                            }
-                            alt=""
-                            className="h-full w-full object-center object-cover"
-                          />
-                        </label>
-                        {errors.image && (
-                          <span className="text-red-500">
-                            Không để trống hình ảnh!
-                          </span>
-                        )}
-                      </div>
-                    </DialogDescription>
-                    <DialogFooter>
-                      <div className="flex gap-x-2 justify-end">
-                        <ButtonForm
-                          type="submit"
-                          className="!w-28 !bg-primary"
-                          label="Thêm mới"
-                          loading={handlePost.isPending || isLoading}
-                          // disabled={false}
-                        ></ButtonForm>
-                        <ButtonForm
-                          type="button"
-                          className="!w-28 !bg-red-500"
-                          label="Hủy"
-                          disabled={handlePost.isPending || isLoading}
-                          onClick={() => {
-                            onClose();
-                            setTimeout(() => {
-                              handlePost.reset();
-                              resetForm();
-                            }, 500);
-                          }}
-                        ></ButtonForm>
-                      </div>
-                    </DialogFooter>
-                  </div>
-                ) : (
-                  <div className="flex flex-col px-1">
-                    <DialogDescription className="flex items-center mb-5 justify-center gap-x-2 py-6">
-                      <i className="ri-checkbox-line text-gray-700 text-xl"></i>{" "}
-                      <span className="text-gray-700 text-base">
-                        Thêm thành công
-                      </span>
-                    </DialogDescription>
-                    <div className="flex gap-x-2 justify-end">
-                      <ButtonForm
-                        type="button"
-                        className="!w-28 !bg-primary"
-                        label="Thêm mới"
-                        onClick={() => {
-                          handlePost.reset();
-                          resetForm();
-                        }}
-                      ></ButtonForm>
-                      <ButtonForm
-                        type="button"
-                        className="!w-28 !bg-red-500"
-                        label="Hủy"
-                        onClick={() => {
-                          onClose();
-                          setTimeout(() => {
-                            handlePost.reset();
-                            resetForm();
-                          }, 500);
-                        }}
-                      ></ButtonForm>
-                    </div>
-                  </div>
+        {!handlePost.isSuccess && !handlePostDeclined.isSuccess ? (
+          <div className="flex flex-col gap-y-4 px-1">
+            <DialogDescription className="flex flex-col gap-y-3">
+              <div className="grid grid-cols-2 gap-x-3">
+                <div className="text-gray-700">
+                  <span className="font-semibold">Tên tài khoản: </span>
+                  {item?.bankAccountName}
+                </div>
+                <div className="text-gray-700">
+                  <span className="font-semibold">Số tài khoản: </span>
+                  {item?.bankAccountNumber}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-x-3">
+                <div className="text-gray-700">
+                  <span className="font-semibold">Ngân hàng: </span>
+                  {item?.bankName}
+                </div>
+                <div className="text-gray-700">
+                  <span className="font-semibold">Tổng tiền: </span>
+                  {Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(item?.totalAmount ? item?.totalAmount : 0)}
+                </div>
+              </div>
+              <div className="text-gray-700">
+                <span className="font-semibold">Chi nhánh: </span>
+                {item?.bankBranchName}
+              </div>
+              <div className="text-gray-700">
+                <span className="font-semibold">Cửa hàng giao dịch: </span>
+                {item?.storeName}
+              </div>
+              <div className="text-gray-700">
+                <span className="font-semibold">Mã cửa hàng giao dịch: </span>
+                {item?.storeCode}
+              </div>
+              <div className="text-gray-700">
+                <span className="font-semibold">Trạng thái giao dịch: </span>
+                {item?.transactionStatus}
+              </div>
+            </DialogDescription>
+            <DialogFooter>
+              <div className="flex gap-x-2 justify-end">
+                {item?.transactionStatus == "pending" && (
+                  <>
+                    <ButtonForm
+                      type="submit"
+                      className="!w-28 !bg-primary"
+                      label="Đã thanh toán"
+                      loading={handlePost.isPending}
+                      onClick={() => handleConfirm()}
+                      disabled={handlePostDeclined.isPending}
+                    ></ButtonForm>
+                    <ButtonForm
+                      type="button"
+                      className="!w-28 !bg-gray-500"
+                      label="Từ chối"
+                      loading={handlePostDeclined.isPending}
+                      onClick={() => handleDeclined()}
+                      disabled={handlePost.isPending}
+                    ></ButtonForm>
+                  </>
                 )}
-              </DialogHeader>
-            </Form>
-          )}
-        </Formik>
+                <ButtonForm
+                  type="button"
+                  className="!w-28 !bg-red-500"
+                  label="Hủy"
+                  disabled={
+                    handlePost.isPending || handlePostDeclined.isPending
+                  }
+                  onClick={() => {
+                    onClose();
+                    setTimeout(() => {
+                      handlePost.reset();
+                      handlePostDeclined.reset();
+                    }, 500);
+                  }}
+                ></ButtonForm>
+              </div>
+            </DialogFooter>
+          </div>
+        ) : (
+          <div className="flex flex-col px-1">
+            <DialogDescription className="flex items-center mb-5 justify-center gap-x-2 py-6">
+              <i className="ri-checkbox-line text-gray-700 text-xl"></i>{" "}
+              <span className="text-gray-700 text-base">
+                {handlePost.isSuccess && "Xác nhận thành công!"}
+                {handlePostDeclined.isSuccess && "Từ chối thành công!"}
+              </span>
+            </DialogDescription>
+            <div className="flex gap-x-2 justify-end">
+              <ButtonForm
+                type="button"
+                className="!w-28 !bg-red-500"
+                label="Hủy"
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    handlePost.reset();
+                    handlePostDeclined.reset();
+                  }, 500);
+                }}
+              ></ButtonForm>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

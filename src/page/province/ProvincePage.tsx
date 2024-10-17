@@ -18,8 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import * as Yup from "yup";
+
 import ProvinceCreateDialog from "./component/ProvinceCreateDialog";
 import ProvinceUpdateDialog from "./component/ProvinceUpdateDialog";
 import { fetchData } from "@/api/commonApi";
@@ -31,6 +30,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const ProvincePage = () => {
   const [openNew, setOpenNew] = useState(false);
@@ -152,33 +156,33 @@ const ProvincePage = () => {
         const payment = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="ml-auto pr-5">
+          <Popover>
+            <PopoverTrigger asChild>
               <div className="w-16 text-end cursor-pointer">
                 <i className="ri-menu-line text-xl text-gray-600"></i>
               </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedItem(row.original);
-                    setOpenUpdate(true);
-                  }}
-                >
-                  <span>Xem chi tiết</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async () => {
-                    setSelectedItem(row.original);
-                    setOpenDelete(true);
-                  }}
-                >
-                  <span>Xóa</span>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverTrigger>
+            <PopoverContent className="w-44" align="end">
+              <div
+                className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                onClick={() => {
+                  setSelectedItem(row.original);
+                  setOpenUpdate(true);
+                }}
+              >
+                <span>Xem chi tiết</span>
+              </div>
+              <div
+                className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                onClick={async () => {
+                  setSelectedItem(row.original);
+                  setOpenDelete(true);
+                }}
+              >
+                <span>Xóa</span>
+              </div>
+            </PopoverContent>
+          </Popover>
         );
       },
     },

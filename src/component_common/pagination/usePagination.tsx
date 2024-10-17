@@ -17,7 +17,7 @@ export const usePanigation = ({
     return Array.from({ length }, (_, idx) => idx + start);
   };
   const panigationRange: number[] | undefined = useMemo(() => {
-    const totalPageCount: number = Math.round(totalCount / pageSize);
+    const totalPageCount: number = Math.ceil(totalCount / pageSize);
 
     // Pages count is determined as siblingCount + firstPage + lastPage + currentPage + 2*DOTS
     const totalPageNumbers: number = siblingCount + 5;

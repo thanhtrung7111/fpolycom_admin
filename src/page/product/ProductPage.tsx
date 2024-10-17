@@ -1,118 +1,129 @@
 import BreadcrumbCustom from "@/component_common/breadcrumb/BreadcrumbCustom";
 import ButtonForm from "@/component_common/commonForm/ButtonForm";
-import InputFormikForm from "@/component_common/commonForm/InputFormikForm";
-import SpinnerLoading from "@/component_common/loading/SpinnerLoading";
 import TableCustom from "@/component_common/table/TableCustom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DiscountObject,
-  DistrictObject,
-  PaymentTypeObject,
-  ProvinceObject,
-  StoreTransactonObject,
-} from "@/type/TypeCommon";
+
+import { ProductObject, ProvinceObject } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import * as Yup from "yup";
+import React, { useState } from "react";
 import { fetchData, postData } from "@/api/commonApi";
-import StoreTransactionDetailDialog from "./component/StoreTransactionDetailDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import StoreTransactionDeclinedDialog from "./component/StoreTransactionDeclinedDialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import ProductDetailDialog from "./component/ProductDetailDialog";
 import { toast } from "sonner";
 
-const StoreTransactionPage = () => {
+const ProductPage = () => {
   const queryClient = useQueryClient();
-  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] =
-    useState<StoreTransactonObject | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["storeTransactions"],
-    queryFn: () => fetchData("/admin/store-transaction/all"),
+    queryKey: ["products"],
+    queryFn: () => fetchData("/admin/product/all"),
   });
-  const {
-    data: dataStatus,
-    isError: isErrorStatus,
-    isFetching: isFetchingStatus,
-    error: errorStatus,
-    isSuccess: isSuccessStatus,
-  } = useQuery({
-    queryKey: ["transactionStatuss"],
-    queryFn: () => fetchData("/common/status/transaction"),
-  });
-  const handleConfirm = useMutation({
+
+  const handleLock = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/store-transaction/completed"),
-    onSuccess: (data: StoreTransactonObject) => {
+      postData(body, "/admin/product/lock"),
+    onSuccess: (data: ProductObject) => {
       const resultData = data;
-      if (queryClient.getQueryData(["storeTransactions"])) {
-        queryClient.setQueryData(
-          ["storeTransactions"],
-          (oldData: StoreTransactonObject[]) => {
-            console.log(resultData);
-            return [
-              resultData,
-              ...oldData.filter(
-                (item) =>
-                  item.storeTransactionCode != resultData.storeTransactionCode
-              ),
-            ];
-          }
-        );
+      if (queryClient.getQueryData(["products"])) {
+        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
+          console.log(resultData);
+          return [
+            resultData,
+            ...oldData.filter(
+              (item) => item.productCode != resultData.productCode
+            ),
+          ];
+        });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "storeTransactions",
+          predicate: (query) => query.queryKey[0] === "products",
         });
       }
+      handleUnLock.reset();
       toast("Thông báo", {
         description: (
           <span>
-            Đã xác nhận giao dịch <b>"{resultData.storeTransactionCode}"</b>{" "}
-            thành công!
+            Khóa sản phẩm{" "}
+            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
+            công!
           </span>
         ),
       });
-      handleConfirm.reset();
+    },
+  });
+  const handleUnLock = useMutation({
+    mutationFn: (body: { [key: string]: any }) =>
+      postData(body, "/admin/product/unlock"),
+    onSuccess: (data: ProductObject) => {
+      const resultData = data;
+      if (queryClient.getQueryData(["products"])) {
+        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
+          console.log(resultData);
+          return [
+            resultData,
+            ...oldData.filter(
+              (item) => item.productCode != resultData.productCode
+            ),
+          ];
+        });
+      } else {
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "products",
+        });
+      }
+      handleLock.reset();
+      toast("Thông báo", {
+        description: (
+          <span>
+            Mở khóa sản phẩm{" "}
+            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
+            công!
+          </span>
+        ),
+      });
     },
   });
 
+  const {
+    data: dataProductStatus,
+    isError: isErrorProductStatus,
+    isFetching: isFetchingProductStatus,
+    error: errorProductStatus,
+    isSuccess: isSuccessProductStatus,
+  } = useQuery({
+    queryKey: ["productStatus"],
+    queryFn: () => fetchData("/common/status/product"),
+  });
+
+  const {
+    data: dataTypeGood,
+    isError: isErrorTypeGood,
+    isFetching: isFetchingTypeGood,
+    error: errorTypeGood,
+    isSuccess: isSuccessTypeGood,
+  } = useQuery({
+    queryKey: ["typeGoods"],
+    queryFn: () => fetchData("/admin/typegood/all"),
+  });
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Thanh toán",
-    },
-    {
-      itemName: "Giao dịch cửa hàng",
-      itemLink: "/payment_type",
+      itemName: "Danh sách Tỉnh/Thành phố",
+      itemLink: "/province",
     },
   ];
-  const columns: ColumnDef<StoreTransactonObject>[] = [
+  const columns: ColumnDef<ProductObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -136,15 +147,15 @@ const StoreTransactionPage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "storeTransactionCode",
-      meta: "Mã giao dịch cửa hàng",
+      accessorKey: "productCode",
+      meta: "Mã sản phẩm",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã giao dịch cửa hàng
+            Mã sản phẩm
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -154,20 +165,20 @@ const StoreTransactionPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("storeTransactionCode")}</div>
+        <div className="capitalize">{row.getValue("productCode")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "storeName",
-      meta: "Cửa hàng giao dịch",
+      accessorKey: "name",
+      meta: "Tên sản phẩm",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Cửa hàng giao dịch
+            Tên sản phẩm
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -177,20 +188,21 @@ const StoreTransactionPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("storeName")}</div>
+        <div className="capitalize">{row.getValue("name")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "bankName",
-      meta: "Ngân hàng",
+      accessorKey: "typeGoodCode",
+      meta: "Mã loại hàng",
       header: ({ column }) => {
         return (
           <Button
+            className="hidden"
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Ngân hàng
+            Mã loại hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -200,20 +212,20 @@ const StoreTransactionPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("bankName")}</div>
+        <div className="capitalize hidden">{row.getValue("typeGoodCode")}</div>
       ),
-      enableHiding: true,
+      enableHiding: false,
     },
     {
-      accessorKey: "bankAccountName",
-      meta: "Tên TK",
+      accessorKey: "typeGoodName",
+      meta: "Loại hàng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên TK
+            Loại hàng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -223,35 +235,12 @@ const StoreTransactionPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("bankAccountName")}</div>
+        <div className="capitalize">{row.getValue("typeGoodName")}</div>
       ),
-      enableHiding: true,
+      enableHiding: false,
     },
     {
-      accessorKey: "bankAccountNumber",
-      meta: "Số TK",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Số TK
-            {column.getIsSorted() === "asc" ? (
-              <i className="ri-arrow-up-line"></i>
-            ) : (
-              <i className="ri-arrow-down-line"></i>
-            )}
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("bankAccountNumber")}</div>
-      ),
-      enableHiding: true,
-    },
-    {
-      accessorKey: "transactionStatus",
+      accessorKey: "status",
       meta: "Trạng thái",
       header: ({ column }) => {
         return (
@@ -269,18 +258,16 @@ const StoreTransactionPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">
-          <span
-            className={`${
-              row.getValue("transactionStatus") == "pending"
-                ? "text-yellow-600"
-                : row.getValue("transactionStatus") == "failed"
-                ? "text-red-700"
-                : "text-green-700"
-            } font-semibold`}
-          >
-            {row.getValue("transactionStatus")}
-          </span>
+        <div
+          className={`capitalize font-medium ${
+            row.getValue("status") == "pending"
+              ? "text-yellow-600"
+              : row.getValue("status") == "active"
+              ? "text-green-700"
+              : "text-red-500"
+          }`}
+        >
+          {row.getValue("status")}
         </div>
       ),
       enableHiding: true,
@@ -302,52 +289,62 @@ const StoreTransactionPage = () => {
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-44" align="end">
-              {row.original.transactionStatus == "pending" && (
+              <div
+                className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                onClick={() => {
+                  setSelectedItem(row.original);
+                  setOpenUpdate(true);
+                }}
+              >
+                <span>Xem chi tiết</span>
+              </div>
+              {row.original.status == "pending" && (
                 <>
                   <div
-                    onClick={() => {
-                      setSelectedItem(row.original);
-                      setOpenUpdate(true);
-                    }}
                     className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                    onClick={async () => {
+                      await handleUnLock.mutateAsync({
+                        productCode: row.original.productCode,
+                      });
+                    }}
                   >
-                    <span>Xem chi tiết</span>
+                    <span>Duyệt</span>
                   </div>
                   <div
                     className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                     onClick={async () => {
-                      setOpenSuccess(true);
-                      await handleConfirm.mutateAsync({
-                        storeTransactionCode: row.original.storeTransactionCode,
+                      await handleLock.mutateAsync({
+                        productCode: row.original.productCode,
                       });
                     }}
                   >
-                    <span>Xác nhận</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      setSelectedItem(row.original);
-                      setOpenDelete(true);
-                    }}
-                    className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
-                  >
-                    <span>Từ chối</span>
+                    <span>Khóa</span>
                   </div>
                 </>
               )}
-              {(row.original.transactionStatus == "complete" ||
-                row.original.transactionStatus == "failed") && (
-                <>
-                  <div
-                    onClick={() => {
-                      setSelectedItem(row.original);
-                      setOpenUpdate(true);
-                    }}
-                    className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
-                  >
-                    <span>Xem chi tiết</span>
-                  </div>
-                </>
+              {row.original.status == "active" && (
+                <div
+                  className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                  onClick={async () => {
+                    await handleLock.mutateAsync({
+                      productCode: row.original.productCode,
+                    });
+                  }}
+                >
+                  <span>Khóa</span>
+                </div>
+              )}
+              {row.original.status == "lock" && (
+                <div
+                  className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                  onClick={async () => {
+                    await handleUnLock.mutateAsync({
+                      productCode: row.original.productCode,
+                    });
+                  }}
+                >
+                  <span>Mở khóa</span>
+                </div>
               )}
             </PopoverContent>
           </Popover>
@@ -357,16 +354,11 @@ const StoreTransactionPage = () => {
   ];
   return (
     <>
-      <StoreTransactionDeclinedDialog
-        item={selectedItem}
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-      ></StoreTransactionDeclinedDialog>
-      <StoreTransactionDetailDialog
+      <ProductDetailDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
-      ></StoreTransactionDetailDialog>
+      ></ProductDetailDialog>
 
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
@@ -380,7 +372,7 @@ const StoreTransactionPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách loại thanh toán
+            Danh sách quảng cáo
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -388,6 +380,13 @@ const StoreTransactionPage = () => {
               type="button"
               icon={<i className="ri-download-2-line"></i>}
               label="Xuất excel"
+            ></ButtonForm>
+            <ButtonForm
+              className="!bg-secondary !w-28"
+              type="button"
+              icon={<i className="ri-file-add-line"></i>}
+              onClick={() => setOpenNew(true)}
+              label="Thêm mới"
             ></ButtonForm>
           </div>
         </div>
@@ -398,19 +397,23 @@ const StoreTransactionPage = () => {
             data={isSuccess ? data : []}
             columns={columns}
             search={[
+              { key: "productCode", name: "mã sản phẩm", type: "text" },
+              { key: "name", name: "tên sản phẩm", type: "text" },
               {
-                key: "bankAccountNumber",
-                name: "số tài khoản",
-                type: "text",
+                key: "typeGoodCode",
+                name: "Loại hàng",
+                type: "combobox",
+                dataKey: "typeGoodCode",
+                dataName: "name",
+                dataList: dataTypeGood ? dataTypeGood : [],
               },
               {
-                key: "transactionStatus",
+                key: "status",
                 name: "Trạng thái",
                 type: "combobox",
                 dataKey: "name",
                 dataName: "description",
-                dataList:
-                  isSuccessStatus && dataStatus != undefined ? dataStatus : [],
+                dataList: dataProductStatus ? dataProductStatus : [],
               },
             ]}
             isLoading={isFetching}
@@ -421,4 +424,4 @@ const StoreTransactionPage = () => {
   );
 };
 
-export default StoreTransactionPage;
+export default ProductPage;
