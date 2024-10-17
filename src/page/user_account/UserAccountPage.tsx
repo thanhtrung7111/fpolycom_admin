@@ -118,7 +118,7 @@ const UserAccountPage = () => {
       itemLink: "/user_account",
     },
   ];
-  const columns: ColumnDef<ProductObject>[] = [
+  const columns: ColumnDef<UserAccountObject>[] = [
     {
       id: "select",
       header: ({ table }) => (
