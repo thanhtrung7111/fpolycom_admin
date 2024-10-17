@@ -4,7 +4,11 @@ import TableCustom from "@/component_common/table/TableCustom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { ProductObject, ProvinceObject } from "@/type/TypeCommon";
+import {
+  ProductObject,
+  ProvinceObject,
+  UserAccountObject,
+} from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useState } from "react";
@@ -23,37 +27,38 @@ const UserAccountPage = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => fetchData("/admin/product/all"),
+    queryKey: ["userAccounts"],
+    queryFn: () => fetchData("/admin/user-account/all"),
   });
 
   const handleLock = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/product/lock"),
-    onSuccess: (data: ProductObject) => {
+      postData(body, "/admin/user-account/lock"),
+    onSuccess: (data: UserAccountObject) => {
       const resultData = data;
-      if (queryClient.getQueryData(["products"])) {
-        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
-          console.log(resultData);
-          return [
-            resultData,
-            ...oldData.filter(
-              (item) => item.productCode != resultData.productCode
-            ),
-          ];
-        });
+      if (queryClient.getQueryData(["userAccounts"])) {
+        queryClient.setQueryData(
+          ["userAccounts"],
+          (oldData: UserAccountObject[]) => {
+            console.log(resultData);
+            return [
+              resultData,
+              ...oldData.filter(
+                (item) => item.userAccountID != resultData.userAccountID
+              ),
+            ];
+          }
+        );
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "products",
+          predicate: (query) => query.queryKey[0] === "userAccounts",
         });
       }
       handleUnLock.reset();
       toast("Thông báo", {
         description: (
           <span>
-            Khóa sản phẩm{" "}
-            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
-            công!
+            Khóa tài khoản <b>"{resultData.userLogin}"</b> thành công!
           </span>
         ),
       });
@@ -61,31 +66,32 @@ const UserAccountPage = () => {
   });
   const handleUnLock = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/product/unlock"),
-    onSuccess: (data: ProductObject) => {
+      postData(body, "/admin/user-account/unlock"),
+    onSuccess: (data: UserAccountObject) => {
       const resultData = data;
-      if (queryClient.getQueryData(["products"])) {
-        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
-          console.log(resultData);
-          return [
-            resultData,
-            ...oldData.filter(
-              (item) => item.productCode != resultData.productCode
-            ),
-          ];
-        });
+      if (queryClient.getQueryData(["userAccounts"])) {
+        queryClient.setQueryData(
+          ["userAccounts"],
+          (oldData: UserAccountObject[]) => {
+            console.log(resultData);
+            return [
+              resultData,
+              ...oldData.filter(
+                (item) => item.userAccountID != resultData.userAccountID
+              ),
+            ];
+          }
+        );
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "products",
+          predicate: (query) => query.queryKey[0] === "userAccounts",
         });
       }
       handleLock.reset();
       toast("Thông báo", {
         description: (
           <span>
-            Mở khóa sản phẩm{" "}
-            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
-            công!
+            Mở khóa tài khoản <b>"{resultData.userLogin}"</b> thành công!
           </span>
         ),
       });
@@ -93,26 +99,16 @@ const UserAccountPage = () => {
   });
 
   const {
-    data: dataProductStatus,
-    isError: isErrorProductStatus,
-    isFetching: isFetchingProductStatus,
-    error: errorProductStatus,
-    isSuccess: isSuccessProductStatus,
+    data: dataUserStatus,
+    isError: isErrorUserStatus,
+    isFetching: isFetchingUserStatus,
+    error: errorUserStatus,
+    isSuccess: isSuccessUserStatus,
   } = useQuery({
-    queryKey: ["productStatus"],
-    queryFn: () => fetchData("/common/status/product"),
+    queryKey: ["userStatus"],
+    queryFn: () => fetchData("/common/user-status"),
   });
 
-  const {
-    data: dataTypeGood,
-    isError: isErrorTypeGood,
-    isFetching: isFetchingTypeGood,
-    error: errorTypeGood,
-    isSuccess: isSuccessTypeGood,
-  } = useQuery({
-    queryKey: ["typeGoods"],
-    queryFn: () => fetchData("/admin/typegood/all"),
-  });
   const breadBrumb = [
     {
       itemName: "Quản lí chung",
@@ -146,15 +142,15 @@ const UserAccountPage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "productCode",
-      meta: "Mã sản phẩm",
+      accessorKey: "userAccountID",
+      meta: "Mã người dùng",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã sản phẩm
+            Mã người dùng
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -164,20 +160,20 @@ const UserAccountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("productCode")}</div>
+        <div className="capitalize">{row.getValue("userAccountID")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "name",
-      meta: "Tên sản phẩm",
+      accessorKey: "userLogin",
+      meta: "Tên đăng nhập",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tên sản phẩm
+            Tên đăng nhập
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -187,21 +183,20 @@ const UserAccountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div className="capitalize">{row.getValue("userLogin")}</div>
       ),
       enableHiding: true,
     },
     {
-      accessorKey: "typeGoodCode",
-      meta: "Mã loại hàng",
+      accessorKey: "email",
+      meta: "Email",
       header: ({ column }) => {
         return (
           <Button
-            className="hidden"
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Mã loại hàng
+            Email
             {column.getIsSorted() === "asc" ? (
               <i className="ri-arrow-up-line"></i>
             ) : (
@@ -211,33 +206,11 @@ const UserAccountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize hidden">{row.getValue("typeGoodCode")}</div>
+        <div className="capitalize">{row.getValue("email")}</div>
       ),
-      enableHiding: false,
+      enableHiding: true,
     },
-    {
-      accessorKey: "typeGoodName",
-      meta: "Loại hàng",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Loại hàng
-            {column.getIsSorted() === "asc" ? (
-              <i className="ri-arrow-up-line"></i>
-            ) : (
-              <i className="ri-arrow-down-line"></i>
-            )}
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("typeGoodName")}</div>
-      ),
-      enableHiding: false,
-    },
+
     {
       accessorKey: "status",
       meta: "Trạng thái",

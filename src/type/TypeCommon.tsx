@@ -34,8 +34,6 @@ export type CompcodeObject = {
   LCTNLIST: LctnCodeObject[];
 };
 
-
-
 export type Payment = {
   id: string;
   amount: number;
@@ -218,4 +216,22 @@ export type ProductObject = {
   pointEvaluate?: number | undefined | null;
   minPrice?: number | undefined | null;
   maxPrice?: number | undefined | null;
+};
+
+export type UserAccountObject = {
+  userAccountID?: string | undefined | null;
+  name?: string | undefined | null;
+  phone?: string | undefined | null;
+  addressDetail?: string | undefined | null;
+  address?: string | undefined | null;
+  image?: string | undefined | null;
+  bannerImage?: string | undefined | null;
+  email?: string | undefined | null;
+  userStatus?: string | undefined | null;
+  dateOfBirth?: string | undefined | null;
+  gender?: string | undefined | null;
+  provinceName?: string | undefined | null;
+  districtName?: string | undefined | null;
+  wardName?: string | undefined | null;
+  userLogin?: string | undefined | null;
 };
