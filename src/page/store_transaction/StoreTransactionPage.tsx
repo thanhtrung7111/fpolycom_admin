@@ -23,7 +23,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Form, Formik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { fetchData, postData } from "@/api/commonApi";
@@ -37,7 +37,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const StoreTransactionPage = () => {
-  const [openNew, setOpenNew] = useState(false);
+  const queryClient = useQueryClient();
+  const [openSuccess, setOpenSuccess] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedItem, setSelectedItem] =
@@ -46,22 +47,38 @@ const StoreTransactionPage = () => {
     queryKey: ["storeTransactions"],
     queryFn: () => fetchData("/admin/store-transaction/all"),
   });
+  const {
+    data: dataStatus,
+    isError: isErrorStatus,
+    isFetching: isFetchingStatus,
+    error: errorStatus,
+    isSuccess: isSuccessStatus,
+  } = useQuery({
+    queryKey: ["transactionStatuss"],
+    queryFn: () => fetchData("/common/status/transaction"),
+  });
   const handleConfirm = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/payment-type/new"),
-    onSuccess: (data: PaymentTypeObject) => {
-      if (queryClient.getQueryData(["paymentTypes"])) {
+      postData(body, "/admin/store-transaction/completed"),
+    onSuccess: (data: StoreTransactonObject) => {
+      if (queryClient.getQueryData(["storeTransactions"])) {
         queryClient.setQueryData(
-          ["paymentTypes"],
-          (oldData: PaymentTypeObject[]) => {
+          ["storeTransactions"],
+          (oldData: StoreTransactonObject[]) => {
             const resultData = data;
             console.log(resultData);
-            return [resultData, ...oldData];
+            return [
+              resultData,
+              ...oldData.filter(
+                (item) =>
+                  item.storeTransactionCode != resultData.storeTransactionCode
+              ),
+            ];
           }
         );
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "paymentTypes",
+          predicate: (query) => query.queryKey[0] === "storeTransactions",
         });
       }
     },
@@ -275,7 +292,15 @@ const StoreTransactionPage = () => {
                     <DropdownMenuItem>
                       <span>Xem chi tiết</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        setOpenSuccess(true);
+                        await handleConfirm.mutateAsync({
+                          storeTransactionCode:
+                            row.original.storeTransactionCode,
+                        });
+                      }}
+                    >
                       <span>Xác nhận</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -300,11 +325,61 @@ const StoreTransactionPage = () => {
   ];
   return (
     <>
+      <Dialog
+        open={openSuccess}
+        onOpenChange={() => {
+          if (!handleConfirm.isPending) {
+            setOpenSuccess(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Thông báo</DialogTitle>
+            <DialogDescription className="py-5 flex items-center gap-x-2 justify-center">
+              {handleConfirm.isPending ? (
+                <>
+                  <SpinnerLoading className="size-5 fill-primary"></SpinnerLoading>
+                  <span className="text-gray-700 text-base">
+                    Đang xác nhận...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <i className="ri-checkbox-line text-gray-700 text-xl"></i>{" "}
+                  <span className="text-gray-700 text-base">
+                    Thêm thành công
+                  </span>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="flex gap-x-2 justify-end">
+              {!handleConfirm.isPending && (
+                <ButtonForm
+                  type="button"
+                  className="!w-28 !bg-red-500"
+                  label="Hủy"
+                  // disabled={handlePost.isPending || isLoading}
+                  onClick={() => {
+                    setOpenSuccess(false);
+                    setTimeout(() => {
+                      handleConfirm.reset();
+                    }, 500);
+                  }}
+                ></ButtonForm>
+              )}
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <StoreTransactionDetailDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
       ></StoreTransactionDetailDialog>
+      
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
           <BreadcrumbCustom
@@ -326,13 +401,6 @@ const StoreTransactionPage = () => {
               icon={<i className="ri-download-2-line"></i>}
               label="Xuất excel"
             ></ButtonForm>
-            <ButtonForm
-              className="!bg-secondary !w-28"
-              type="button"
-              icon={<i className="ri-file-add-line"></i>}
-              onClick={() => setOpenNew(true)}
-              label="Thêm mới"
-            ></ButtonForm>
           </div>
         </div>
 
@@ -343,11 +411,19 @@ const StoreTransactionPage = () => {
             columns={columns}
             search={[
               {
-                key: "paymentTypeCode",
-                name: "mã loại thanh toán",
+                key: "bankAccountNumber",
+                name: "số tài khoản",
                 type: "text",
               },
-              { key: "name", name: "tên loại thanh toán", type: "text" },
+              {
+                key: "transactionStatus",
+                name: "Trạng thái",
+                type: "combobox",
+                dataKey: "name",
+                dataName: "description",
+                dataList:
+                  isSuccessStatus && dataStatus != undefined ? dataStatus : [],
+              },
             ]}
             isLoading={isFetching}
           ></TableCustom>
