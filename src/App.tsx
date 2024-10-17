@@ -32,6 +32,7 @@ import DiscountPage from "./page/discount/DiscountPage";
 import PaymentTypePage from "./page/payment_type/PaymentTypePage";
 import StoreTransactionPage from "./page/store_transaction/StoreTransactionPage";
 import ProductPage from "./page/product/ProductPage";
+import UserAccountPage from "./page/user_account/UserAccountPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -100,6 +101,10 @@ function App() {
             <Route
               element={<BankUserPage></BankUserPage>}
               path="/bank_user"
+            ></Route>
+            <Route
+              element={<UserAccountPage></UserAccountPage>}
+              path="/user_account"
             ></Route>
           </Route>
           <Route

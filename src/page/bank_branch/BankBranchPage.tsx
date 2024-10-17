@@ -154,7 +154,7 @@ const BankBranchPage = () => {
         return (
           <Popover>
             <PopoverTrigger asChild>
-            <div className="w-16 text-end cursor-pointer ml-auto pr-5">
+              <div className="w-16 text-end cursor-pointer ml-auto pr-5">
                 <i className="ri-menu-line text-xl text-gray-600"></i>
               </div>
             </PopoverTrigger>
@@ -243,7 +243,7 @@ const BankBranchPage = () => {
                 name: "Ngân hàng",
                 type: "combobox",
                 dataKey: "bankCode",
-                dataName: "name",
+                dataName: "shortName",
                 dataList:
                   isSuccessBank && dataBank != undefined ? dataBank : [],
               },

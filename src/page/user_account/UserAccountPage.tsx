@@ -14,10 +14,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import ProductDetailDialog from "./component/ProductDetailDialog";
 import { toast } from "sonner";
 
-const ProductPage = () => {
+const UserAccountPage = () => {
   const queryClient = useQueryClient();
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -119,11 +118,8 @@ const ProductPage = () => {
       itemName: "Quản lí chung",
     },
     {
-      itemName: "Sản phẩm",
-    },
-    {
-      itemName: "Danh sách",
-      itemLink: "/province",
+      itemName: "Tài khoản người dùng",
+      itemLink: "/user_account",
     },
   ];
   const columns: ColumnDef<ProductObject>[] = [
@@ -357,11 +353,11 @@ const ProductPage = () => {
   ];
   return (
     <>
-      <ProductDetailDialog
+      {/* <ProductDetailDialog
         open={openUpdate}
         onClose={() => setOpenUpdate(false)}
         item={selectedItem}
-      ></ProductDetailDialog>
+      ></ProductDetailDialog> */}
 
       <div className="flex flex-col gap-y-2">
         <div className="mb-3">
@@ -375,7 +371,7 @@ const ProductPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách sản phẩm
+            Danh sách quảng cáo
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
@@ -427,4 +423,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default UserAccountPage;

@@ -149,6 +149,11 @@ const menu: any[] = [
         link: "/post",
       },
       {
+        itemName: "Tài khoản người dùng",
+        itemIcon: <i className="ri-newspaper-line"></i>,
+        link: "/user_account",
+      },
+      {
         itemName: "Tin nhắn",
         itemIcon: <i className="ri-advertisement-line"></i>,
         link: "/messages",
