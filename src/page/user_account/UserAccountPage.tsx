@@ -212,7 +212,7 @@ const UserAccountPage = () => {
     },
 
     {
-      accessorKey: "status",
+      accessorKey: "userStatus",
       meta: "Trạng thái",
       header: ({ column }) => {
         return (
@@ -232,14 +232,14 @@ const UserAccountPage = () => {
       cell: ({ row }) => (
         <div
           className={`capitalize font-medium ${
-            row.getValue("status") == "pending"
+            row.getValue("userStatus") == "pending"
               ? "text-yellow-600"
-              : row.getValue("status") == "active"
+              : row.getValue("userStatus") == "active"
               ? "text-green-700"
               : "text-red-500"
           }`}
         >
-          {row.getValue("status")}
+          {row.getValue("userStatus")}
         </div>
       ),
       enableHiding: true,
@@ -344,7 +344,7 @@ const UserAccountPage = () => {
         {/* Action  */}
         <div className="flex justify-between items-center">
           <h4 className="text-xl font-medium text-gray-600">
-            Danh sách quảng cáo
+            Danh sách tài khoản người dùng
           </h4>
           <div className="flex gap-x-2">
             <ButtonForm
