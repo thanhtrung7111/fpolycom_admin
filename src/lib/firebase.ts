@@ -4,14 +4,14 @@ import { getStorage } from "firebase/storage";
 
 // Cấu hình Firebase của bạn (lấy từ Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyAM3gAWWv1GDDlJ2NeLjhT2yiILHkv0wmA",
-  authDomain: "polyfirebase-e7423.firebaseapp.com",
-  databaseURL: "https://polyfirebase-e7423-default-rtdb.firebaseio.com",
-  projectId: "polyfirebase-e7423",
-  storageBucket: "polyfirebase-e7423.appspot.com",
-  messagingSenderId: "1090509867962",
-  appId: "1:1090509867962:web:8c277f276cf8e8915eeb83",
+  apiKey: "AIzaSyBENPrMl7KvJ5R7IQialMBs-5LYTDwy7Ts",
+  authDomain: "cinemastar-957ee.firebaseapp.com",
+  projectId: "cinemastar-957ee",
+  storageBucket: "cinemastar-957ee.appspot.com",
+  messagingSenderId: "449818294179",
+  appId: "1:449818294179:web:322839cf693e2850454c16",
 };
+
 const app = initializeApp(firebaseConfig);
 
 // Lấy instance của Firebase Storage
