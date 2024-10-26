@@ -120,7 +120,7 @@ const DiscountPageCreateDialog = ({
                         label="Phần trăm giảm"
                         placeholder="Nhập phần trăm giảm..."
                         unit="percentDecrease"
-                        name="dsdsD"
+                        name="percentDecrease"
                       ></NumberFormikForm>
                       <TextareaFormikForm
                         label="Mô tả discount"
