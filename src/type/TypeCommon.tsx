@@ -235,3 +235,47 @@ export type UserAccountObject = {
   wardName?: string | undefined | null;
   userLogin?: string | undefined | null;
 };
+
+export type StoreListObject = {
+  storeCode?: string;
+  image?: string;
+  name?: string;
+  addressDetail?: string;
+  address?: string;
+  phone?: string;
+  status?: string;
+  bannerImage?: string;
+  email?: string;
+  userRegister?: string;
+  provinceName?: string;
+  districtName?: string;
+  wardName?: string;
+  numberOfFollowed?: string;
+  numberOfLiked?: string;
+};
+
+export type StoreDetailObject = {
+  storeRegisterCode?: string;
+  image?: string;
+  name?: string;
+  addressDetail?: string;
+  address?: string;
+  status?: string;
+  phone?: string;
+  bannerImage?: string;
+  email?: string;
+  userRegister?: string;
+  provinceCode?: number;
+  districtCode?: number;
+  provinceName?: string;
+  districtName?: string;
+  wardName?: string;
+  wardCode?: number;
+  documentList?:
+    | {
+        documentUrl?: string;
+        documentType?: string;
+        documentCode?: number;
+      }[]
+    | [];
+};
