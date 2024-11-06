@@ -16,6 +16,8 @@ import {
 import {
   DiscountObject,
   DistrictObject,
+  ProductDetailObject,
+  ProductObject,
   ProvinceObject,
 } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -31,9 +33,18 @@ const ProductDetailDialog = ({
 }: {
   open: boolean;
   onClose: () => void;
-  item: DiscountObject | null;
+  item: ProductObject | null;
 }) => {
   const queryClient = useQueryClient();
+  const [detailProduct, setDetailProduct] =
+    useState<ProductDetailObject | null>(null);
+  const handleFetchDetailProduct = useMutation({
+    mutationFn: (productCode: string) =>
+      postData({ productCode: productCode }, "/admin/product/detail"),
+    onSuccess: (data: ProductDetailObject) => {
+      setDetailProduct(data);
+    },
+  });
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Không để trống tên discount!"),
     description: Yup.string().required("Không để trống mô tả!"),
@@ -81,16 +92,10 @@ const ProductDetailDialog = ({
   };
 
   useEffect(() => {
-    if (open == true) {
-      setInitialValues({
-        name: item?.name,
-        beginDate: item?.beginDate,
-        description: item?.description,
-        discountCode: item?.discountCode,
-        percentDecrease: item?.percentDecrease,
-      });
+    if (item && item.productCode) {
+      handleFetchDetailProduct.mutateAsync(item.productCode.toString());
     }
-  }, [item, open]);
+  }, [item]);
   return (
     <Dialog
       open={open}
@@ -103,114 +108,52 @@ const ProductDetailDialog = ({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[500px]">
-        <Formik
-          key={"formUpdateDistrict"}
-          initialValues={initialValues}
-          enableReinitialize={true}
-          validationSchema={validationSchema}
-          onSubmit={(values: any) => {
-            console.log("Hello");
-            handleSubmit(values);
-          }}
-        >
-          {({
-            setFieldValue,
-            handleChange,
-            values,
-            errors,
-            touched,
-            resetForm,
-          }) => (
-            <Form>
-              <DialogHeader>
-                <DialogTitle className="mb-5">Cập nhật discount</DialogTitle>
-                {!handleUpdate.isSuccess ? (
-                  <div className="flex flex-col gap-y-4 px-1">
-                    <DialogDescription className="flex flex-col gap-y-3">
-                      <InputFormikForm
-                        label="Tên discount"
-                        name="name"
-                        placeholder="Nhập tên discount..."
-                        important={true}
-                        disabled={handleUpdate.isPending}
-                      ></InputFormikForm>
-                      <DatePickerFormikForm
-                        disabled={false}
-                        important={true}
-                        name="beginDate"
-                        label="Thời gian bắt đầu"
-                      ></DatePickerFormikForm>
-                      <NumberFormikForm
-                        disabled={false}
-                        important={true}
-                        label="Phần trăm giảm"
-                        placeholder="Nhập phần trăm giảm..."
-                        unit="%"
-                        name="percentDecrease"
-                      ></NumberFormikForm>
-                      <TextareaFormikForm
-                        label="Mô tả discount"
-                        row={5}
-                        name="description"
-                        important={true}
-                        placeholder="Nhập mô tả discount..."
-                        disabled={handleUpdate.isPending}
-                      ></TextareaFormikForm>
-                    </DialogDescription>
-                    <DialogFooter>
-                      <div className="flex gap-x-2 justify-end">
-                        <ButtonForm
-                          type="submit"
-                          className="!w-28 !bg-primary"
-                          label="Cập nhật"
-                          // disabled={false}
-                          loading={handleUpdate.isPending}
-                        ></ButtonForm>
-                        <ButtonForm
-                          type="button"
-                          className="!w-28 !bg-red-500"
-                          label="Hủy"
-                          disabled={handleUpdate.isPending}
-                          onClick={() => {
-                            onClose();
-                            setTimeout(() => {
-                              handleUpdate.reset();
-                              resetForm();
-                            }, 500);
-                          }}
-                        ></ButtonForm>
-                      </div>
-                    </DialogFooter>
-                  </div>
-                ) : (
-                  <div className="flex flex-col px-1">
-                    <DialogDescription className="flex items-center mb-5 justify-center gap-x-2 py-6">
-                      <i className="ri-checkbox-line text-gray-700 text-xl"></i>{" "}
-                      <span className="text-gray-700 text-base">
-                        Cập nhật thành công
-                      </span>
-                    </DialogDescription>
-                    <div className="flex gap-x-2 justify-end">
-                      <ButtonForm
-                        type="button"
-                        className="!w-28 !bg-red-500"
-                        label="Hủy"
-                        onClick={() => {
-                          onClose();
-                          setTimeout(() => {
-                            handleUpdate.reset();
-                            resetForm();
-                          }, 500);
-                        }}
-                      ></ButtonForm>
-                    </div>
-                  </div>
-                )}
-              </DialogHeader>
-            </Form>
-          )}
-        </Formik>
+      <DialogContent className="sm:max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle className="mb-0">
+            Thông tin chi tiết sản phẩm #{detailProduct?.productCode}
+          </DialogTitle>
+          <div className="flex items-center gap-x-1 mb-2">
+            <div
+              className={`size-3 rounded-full ${
+                detailProduct?.status == "lock"
+                  ? "bg-red-500"
+                  : detailProduct?.status == "active"
+                  ? "bg-green-500"
+                  : "bg-yellow-500"
+              }`}
+            ></div>
+            <div
+              className={`${
+                detailProduct?.status == "lock"
+                  ? "text-red-500"
+                  : detailProduct?.status == "active"
+                  ? "text-green-500"
+                  : "text-yellow-500"
+              }`}
+            >
+              {detailProduct?.status == "pending"
+                ? "Chờ duyệt"
+                : detailProduct?.status == "active"
+                ? "Đã uyệt"
+                : "Đã khóa"}
+            </div>
+          </div>
+          <DialogDescription className="flex flex-col gap-y-3">
+            <div className="flex flex-col gap-y-4 px-1"></div>
+          </DialogDescription>
+          <DialogFooter>
+            <div className="flex gap-x-2 justify-end">
+              <ButtonForm
+                type="submit"
+                className="!w-28 !bg-primary"
+                label="Cập nhật"
+                // disabled={false}
+                loading={handleUpdate.isPending}
+              ></ButtonForm>
+            </div>
+          </DialogFooter>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

@@ -143,7 +143,7 @@ const StorePage = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("storeCode")}</div>
+        <div className="capitalize">#{row.getValue("storeCode")}</div>
       ),
       enableHiding: true,
     },

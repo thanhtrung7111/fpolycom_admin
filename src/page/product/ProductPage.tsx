@@ -16,13 +16,14 @@ import {
 } from "@/components/ui/popover";
 import ProductDetailDialog from "./component/ProductDetailDialog";
 import { toast } from "sonner";
+import StatusBadge from "@/component_common/status/StatusBadge";
 
 const ProductPage = () => {
   const queryClient = useQueryClient();
   const [openNew, setOpenNew] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<ProductObject | null>(null);
   const { data, isError, isFetching, error, isSuccess } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchData("/admin/product/all"),
@@ -261,17 +262,17 @@ const ProductPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div
-          className={`capitalize font-medium ${
-            row.getValue("status") == "pending"
-              ? "text-yellow-600"
-              : row.getValue("status") == "active"
-              ? "text-green-700"
-              : "text-red-500"
-          }`}
+        <StatusBadge
+          item={row.original.status ? row.original.status : ""}
+          success="active"
+          error="lock"
+          warning="pending"
         >
-          {row.getValue("status")}
-        </div>
+          {" "}
+          {row.getValue("status") == "pending" && "Chờ duyệt"}
+          {row.getValue("status") == "active" && "Đã duyệt"}
+          {row.getValue("status") == "lock" && "Đã khóa"}
+        </StatusBadge>
       ),
       enableHiding: true,
     },
@@ -291,7 +292,7 @@ const ProductPage = () => {
                 <i className="ri-menu-line text-xl text-gray-600"></i>
               </div>
             </PopoverTrigger>
-            <PopoverContent className="w-44" align="end">
+            <PopoverContent className="w-44 p-2" align="end">
               <div
                 className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                 onClick={() => {
@@ -383,13 +384,6 @@ const ProductPage = () => {
               type="button"
               icon={<i className="ri-download-2-line"></i>}
               label="Xuất excel"
-            ></ButtonForm>
-            <ButtonForm
-              className="!bg-secondary !w-28"
-              type="button"
-              icon={<i className="ri-file-add-line"></i>}
-              onClick={() => setOpenNew(true)}
-              label="Thêm mới"
             ></ButtonForm>
           </div>
         </div>

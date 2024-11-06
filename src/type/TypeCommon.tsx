@@ -279,3 +279,38 @@ export type StoreDetailObject = {
       }[]
     | [];
 };
+
+export type ProductDetailObject = {
+  productCode?: string;
+  name?: string;
+  description?: string;
+  shortDescription?: string;
+  image?: string;
+  status?: string;
+  typeGoodName?: string;
+  typeGoodCode?: string;
+  numberOfLikes?: number;
+  numberOfEvaluates?: number;
+  pointEvaluate?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  liked?: string;
+  storeCode?: string;
+  storeName?: string;
+  productDetailList?: {
+    productDetailCod?: string;
+    name?: string;
+    price?: number;
+    image?: string;
+    quantity?: number;
+    discountCode?: string;
+    percentDecrease?: string;
+  }[];
+  productAttrList: {
+    attrValue?: string;
+    typeGoodAttrCode?: string;
+    typeGoodAttrName?: string;
+    productCode?: string;
+    productAttrCode?: string;
+  }[];
+};
