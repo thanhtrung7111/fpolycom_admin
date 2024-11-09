@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatCurrencyVND } from "@/lib/helper";
 import {
   DiscountObject,
   DistrictObject,
@@ -24,6 +25,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Form, Formik } from "formik";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import * as Yup from "yup";
 
 const ProductDetailDialog = ({
@@ -56,40 +58,76 @@ const ProductDetailDialog = ({
     beginDate: Yup.string().required("Không để trống ngày bắt đầu!"),
   });
 
-  const [initialValues, setInitialValues] = useState<DiscountObject>({
-    name: "",
-    description: "",
-    discountCode: "",
-    percentDecrease: 0,
-    beginDate: moment(new Date()).format("yyyy-MM-DD"),
-  });
-
-  const handleUpdate = useMutation({
+  const handleLock = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
-      postData(body, "/admin/discount/update"),
-    onSuccess: (data: DiscountObject) => {
-      if (queryClient.getQueryData(["discounts"])) {
-        queryClient.setQueryData(["discounts"], (oldData: DiscountObject[]) => {
-          const resultData = data;
+      postData(body, "/admin/product/lock"),
+    onSuccess: (data: ProductObject) => {
+      const resultData = data;
+      if (queryClient.getQueryData(["products"])) {
+        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
           console.log(resultData);
+          if (detailProduct) {
+            setDetailProduct({ ...detailProduct, status: "lock" });
+          }
           return [
             resultData,
             ...oldData.filter(
-              (item) => item.discountCode != resultData.discountCode
+              (item) => item.productCode != resultData.productCode
             ),
           ];
         });
       } else {
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "discounts",
+          predicate: (query) => query.queryKey[0] === "products",
         });
       }
+      handleUnLock.reset();
+      toast("Thông báo", {
+        description: (
+          <span>
+            Khóa sản phẩm{" "}
+            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
+            công!
+          </span>
+        ),
+      });
     },
   });
-
-  const handleSubmit = async (values: any): Promise<void> => {
-    await handleUpdate.mutateAsync(values);
-  };
+  const handleUnLock = useMutation({
+    mutationFn: (body: { [key: strPing]: any }) =>
+      postData(body, "/admin/product/unlock"),
+    onSuccess: (data: ProductObject) => {
+      const resultData = data;
+      if (queryClient.getQueryData(["products"])) {
+        queryClient.setQueryData(["products"], (oldData: ProductObject[]) => {
+          console.log(resultData);
+          if (detailProduct) {
+            setDetailProduct({ ...detailProduct, status: "active" });
+          }
+          return [
+            resultData,
+            ...oldData.filter(
+              (item) => item.productCode != resultData.productCode
+            ),
+          ];
+        });
+      } else {
+        queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "products",
+        });
+      }
+      handleLock.reset();
+      toast("Thông báo", {
+        description: (
+          <span>
+            Mở khóa sản phẩm{" "}
+            <b>"{resultData.productCode + "-" + resultData.name}"</b> thành
+            công!
+          </span>
+        ),
+      });
+    },
+  });
 
   useEffect(() => {
     if (item && item.productCode) {
@@ -100,16 +138,11 @@ const ProductDetailDialog = ({
     <Dialog
       open={open}
       onOpenChange={() => {
-        if (!handleUpdate.isPending) {
-          onClose();
-          setTimeout(() => {
-            handleUpdate.reset();
-          }, 500);
-        }
+        onClose();
       }}
     >
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[1000px] px-0">
+        <DialogHeader className="px-5">
           <DialogTitle className="mb-0">
             Thông tin chi tiết sản phẩm #{detailProduct?.productCode}
           </DialogTitle>
@@ -135,25 +168,174 @@ const ProductDetailDialog = ({
               {detailProduct?.status == "pending"
                 ? "Chờ duyệt"
                 : detailProduct?.status == "active"
-                ? "Đã uyệt"
+                ? "Đã duyệt"
                 : "Đã khóa"}
             </div>
           </div>
-          <DialogDescription className="flex flex-col gap-y-3">
-            <div className="flex flex-col gap-y-4 px-1"></div>
-          </DialogDescription>
-          <DialogFooter>
-            <div className="flex gap-x-2 justify-end">
+        </DialogHeader>
+        <DialogDescription className="flex flex-col gap-y-3 px-5 max-h-[500px] overflow-y-scroll custom-scrollbar-wider">
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="w-full h-64">
+              <img
+                src={detailProduct?.image}
+                className="w-full h-full object-cover object-center"
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <div>
+                <span className="text-gray-700 font-medium">
+                  Tên sản phẩm:{" "}
+                </span>
+                {detailProduct?.name}
+              </div>{" "}
+              <div>
+                <span className="text-gray-700 font-medium">
+                  Cửa hàng bán:{" "}
+                </span>
+                {detailProduct?.storeName}
+              </div>{" "}
+              <div>
+                <span className="text-gray-700 font-medium">Loại hàng: </span>
+                {detailProduct?.typeGoodName}
+              </div>{" "}
+              <div>
+                <span className="text-gray-700 font-medium">
+                  Giá tối thiểu:{" "}
+                </span>
+                {detailProduct?.minPrice &&
+                  formatCurrencyVND(detailProduct?.minPrice)}
+              </div>{" "}
+              <div>
+                <span className="text-gray-700 font-medium">Giá tối đa: </span>
+                {detailProduct?.maxPrice &&
+                  formatCurrencyVND(detailProduct?.maxPrice)}
+              </div>
+              <div>
+                <span className="text-gray-700 font-medium">Mô tả ngắn: </span>
+                {detailProduct?.shortDescription}
+              </div>
+              <div>
+                <span className="text-gray-700 font-medium">Mô tả: </span>
+                {detailProduct?.description}
+              </div>
+              <div>
+                <div className="grid grid-cols-2 gap-x-2">
+                  {detailProduct?.productAttrList.map((item) => {
+                    return (
+                      <div>
+                        <span className="text-gray-700 font-medium">
+                          {item.typeGoodAttrName}:{" "}
+                        </span>
+                        {item?.attrValue}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-gray-700 font-medium mt-2 mb-2 block">
+              Biến thể{" "}
+            </span>
+            <div className="grid grid-cols-4 gap-3">
+              {detailProduct?.productDetailList &&
+                detailProduct?.productDetailList?.map((item) => {
+                  return (
+                    <div className="flex gap-x-2 flex-col gap-y-1">
+                      <img
+                        src={item.image}
+                        className="w-full h-44 object-cover object-center"
+                        alt=""
+                      />
+                      <div className="flex flex-col gap-y-1">
+                        <div>
+                          <span className="text-gray-700 font-medium">
+                            Tên:{" "}
+                          </span>
+                          {item.name}
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">
+                            Giá:{" "}
+                          </span>
+                          {item.price && formatCurrencyVND(item.price)}
+                        </div>
+                        <div>
+                          <span className="text-gray-700 font-medium">
+                            Phần trăm giảm:{" "}
+                          </span>
+                          {item.percentDecrease}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </DialogDescription>
+        <DialogFooter className="px-5">
+          <div className="flex gap-x-2 justify-end">
+            {detailProduct?.status == "pending" && (
+              <ButtonForm
+                type="submit"
+                className="!w-32 !bg-green-500"
+                label="Duyệt sản phẩm"
+                onClick={() => {
+                  if (detailProduct && detailProduct.productCode) {
+                    handleUnLock.mutateAsync({
+                      productCode: Number.parseInt(detailProduct.productCode),
+                    });
+                  }
+                }}
+                loading={handleUnLock.isPending}
+              ></ButtonForm>
+            )}{" "}
+            {detailProduct?.status == "lock" && (
+              <ButtonForm
+                type="submit"
+                className="!w-32 !bg-green-500"
+                label="Mở khóa"
+                // disabled={false}
+                onClick={() => {
+                  if (detailProduct && detailProduct.productCode) {
+                    handleUnLock.mutateAsync({
+                      productCode: Number.parseInt(detailProduct.productCode),
+                    });
+                  }
+                }}
+                // loading={handleUpdate.isPending}
+              ></ButtonForm>
+            )}
+            {(detailProduct?.status == "active" ||
+              detailProduct?.status == "pending") && (
               <ButtonForm
                 type="submit"
                 className="!w-28 !bg-primary"
-                label="Cập nhật"
+                label="Khóa sản phẩm"
                 // disabled={false}
-                loading={handleUpdate.isPending}
+                onClick={() => {
+                  if (detailProduct && detailProduct.productCode) {
+                    handleLock.mutateAsync({
+                      productCode: Number.parseInt(detailProduct.productCode),
+                    });
+                  }
+                }}
+                loading={handleLock.isPending}
               ></ButtonForm>
-            </div>
-          </DialogFooter>
-        </DialogHeader>
+            )}
+            <ButtonForm
+              type="submit"
+              className="!w-20 !bg-red-500"
+              label="Hủy"
+              // disabled={false}
+              onClick={() => {
+                onClose();
+              }}
+            ></ButtonForm>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

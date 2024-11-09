@@ -154,6 +154,27 @@ const menu: any[] = [
         link: "/user_account",
       },
       {
+        itemName: "Đơn hàng",
+        itemIcon: <i className="ri-box-3-line"></i>,
+        itemList: [
+          {
+            itemName: "Đơn giao",
+            itemIcon: <i className="ri-bank-card-line"></i>,
+            link: "/type_good",
+          },
+          {
+            itemName: "Đơn lấy",
+            itemIcon: <i className="ri-home-8-line"></i>,
+            link: "/type_good_attr",
+          },
+          {
+            itemName: "Đơn hoàn trả",
+            itemIcon: <i className="ri-account-box-line"></i>,
+            link: "/discount",
+          },
+        ],
+      },
+      {
         itemName: "Tin nhắn",
         itemIcon: <i className="ri-advertisement-line"></i>,
         link: "/messages",

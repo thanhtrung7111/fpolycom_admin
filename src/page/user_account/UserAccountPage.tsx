@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   ProductObject,
   ProvinceObject,
+  UserAccountListObject,
   UserAccountObject,
 } from "@/type/TypeCommon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
+import StatusBadge from "@/component_common/status/StatusBadge";
 
 const UserAccountPage = () => {
   const queryClient = useQueryClient();
@@ -34,12 +36,12 @@ const UserAccountPage = () => {
   const handleLock = useMutation({
     mutationFn: (body: { [key: string]: any }) =>
       postData(body, "/admin/user-account/lock"),
-    onSuccess: (data: UserAccountObject) => {
+    onSuccess: (data: UserAccountListObject) => {
       const resultData = data;
       if (queryClient.getQueryData(["userAccounts"])) {
         queryClient.setQueryData(
           ["userAccounts"],
-          (oldData: UserAccountObject[]) => {
+          (oldData: UserAccountListObject[]) => {
             console.log(resultData);
             return [
               resultData,
@@ -230,17 +232,16 @@ const UserAccountPage = () => {
         );
       },
       cell: ({ row }) => (
-        <div
-          className={`capitalize font-medium ${
-            row.getValue("userStatus") == "pending"
-              ? "text-yellow-600"
-              : row.getValue("userStatus") == "active"
-              ? "text-green-700"
-              : "text-red-500"
-          }`}
+        <StatusBadge
+          item={row.original.userStatus ? row.original.userStatus : ""}
+          success="active"
+          error="lock"
+          warning="pending"
         >
-          {row.getValue("userStatus")}
-        </div>
+          {row.getValue("userStatus") == "pending" && "Chờ duyệt"}
+          {row.getValue("userStatus") == "active" && "Đã duyệt"}
+          {row.getValue("userStatus") == "lock" && "Đã khóa"}
+        </StatusBadge>
       ),
       enableHiding: true,
     },
@@ -270,13 +271,13 @@ const UserAccountPage = () => {
               >
                 <span>Xem chi tiết</span>
               </div>
-              {row.original.status == "pending" && (
+              {row.original.userStatus == "pending" && (
                 <>
                   <div
                     className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                     onClick={async () => {
                       await handleUnLock.mutateAsync({
-                        productCode: row.original.productCode,
+                        userAccountID: row.original.userAccountID,
                       });
                     }}
                   >
@@ -286,7 +287,7 @@ const UserAccountPage = () => {
                     className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                     onClick={async () => {
                       await handleLock.mutateAsync({
-                        productCode: row.original.productCode,
+                        userAccountID: row.original.userAccountID,
                       });
                     }}
                   >
@@ -294,24 +295,24 @@ const UserAccountPage = () => {
                   </div>
                 </>
               )}
-              {row.original.status == "active" && (
+              {row.original.userStatus == "active" && (
                 <div
                   className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                   onClick={async () => {
                     await handleLock.mutateAsync({
-                      productCode: row.original.productCode,
+                      userAccountID: row.original.userAccountID,
                     });
                   }}
                 >
                   <span>Khóa</span>
                 </div>
               )}
-              {row.original.status == "lock" && (
+              {row.original.userStatus == "lock" && (
                 <div
                   className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                   onClick={async () => {
                     await handleUnLock.mutateAsync({
-                      productCode: row.original.productCode,
+                      userAccountID: row.original.userAccountID,
                     });
                   }}
                 >

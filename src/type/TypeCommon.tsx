@@ -280,6 +280,24 @@ export type StoreDetailObject = {
     | [];
 };
 
+export type UserAccountListObject = {
+  userAccountID?: string;
+  name?: string;
+  phone?: string;
+  addressDetail?:string;
+  userLogin?: string;
+  address?: string;
+  image?: string;
+  bannerImage?:string;
+  email?: string;
+  userStatus?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  provinceName?:string;
+  districtName?:string;
+  wardName?: string;
+};
+
 export type ProductDetailObject = {
   productCode?: string;
   name?: string;
