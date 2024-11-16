@@ -51,6 +51,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   search: SearchObjectProduct[];
   isLoading?: boolean;
+  onSelect?: (data: any[]) => void;
 }
 const pageSize = 20;
 const TableCustom = <TData, TValue>({
@@ -58,6 +59,7 @@ const TableCustom = <TData, TValue>({
   data,
   search,
   isLoading = false,
+  onSelect,
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -74,7 +76,10 @@ const TableCustom = <TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    // onRowSelectionChange: () => {
+    //   setRowSelection;
+    //   if (onSelect) onSelect(table.getSelectedRowModel().rows);
+    // },
     state: {
       pagination: {
         pageIndex: pageIndex,
@@ -86,6 +91,7 @@ const TableCustom = <TData, TValue>({
       rowSelection,
     },
   });
+  console.log(table.getSelectedRowModel().rows);
   return (
     <div className="w-full">
       <div className="flex justify-between mb-3">

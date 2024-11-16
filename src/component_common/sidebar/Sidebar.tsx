@@ -158,14 +158,14 @@ const menu: any[] = [
         itemIcon: <i className="ri-box-3-line"></i>,
         itemList: [
           {
-            itemName: "Đơn giao",
+            itemName: "Đơn lấy",
             itemIcon: <i className="ri-bank-card-line"></i>,
-            link: "/type_good",
+            link: "/receive_order",
           },
           {
-            itemName: "Đơn lấy",
+            itemName: "Đơn giao",
             itemIcon: <i className="ri-home-8-line"></i>,
-            link: "/type_good_attr",
+            link: "/delivery_order",
           },
           {
             itemName: "Đơn hoàn trả",

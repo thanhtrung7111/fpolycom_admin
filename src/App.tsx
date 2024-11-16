@@ -34,6 +34,8 @@ import StoreTransactionPage from "./page/store_transaction/StoreTransactionPage"
 import ProductPage from "./page/product/ProductPage";
 import UserAccountPage from "./page/user_account/UserAccountPage";
 import StorePage from "./page/store/StorePage";
+import ReceiveOrderPage from "./page/receive_order/ReceiveOrderPage";
+import DeliveryOrderPage from "./page/delivery_order/DeliveryOrderPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -108,9 +110,14 @@ function App() {
               path="/user_account"
             ></Route>
             <Route
-              element={<StorePage></StorePage>}
-              path="/store"
+              element={<ReceiveOrderPage></ReceiveOrderPage>}
+              path="/receive_order"
             ></Route>
+            <Route
+              element={<DeliveryOrderPage></DeliveryOrderPage>}
+              path="/delivery_order"
+            ></Route>
+            <Route element={<StorePage></StorePage>} path="/store"></Route>
           </Route>
           <Route
             element={

@@ -284,17 +284,17 @@ export type UserAccountListObject = {
   userAccountID?: string;
   name?: string;
   phone?: string;
-  addressDetail?:string;
+  addressDetail?: string;
   userLogin?: string;
   address?: string;
   image?: string;
-  bannerImage?:string;
+  bannerImage?: string;
   email?: string;
   userStatus?: string;
   dateOfBirth?: string;
   gender?: string;
-  provinceName?:string;
-  districtName?:string;
+  provinceName?: string;
+  districtName?: string;
   wardName?: string;
 };
 
@@ -331,4 +331,26 @@ export type ProductDetailObject = {
     productCode?: string;
     productAttrCode?: string;
   }[];
+};
+
+export type ReceiveOrderObject = {
+  receiveDeliveryCode?: number;
+  image?: string;
+  deliveryDate?: string;
+  typeDelivery?: string;
+  statusDelivery?: string;
+  shipperCode?: number;
+  shipperName?: string;
+  ordersCode?: number;
+  isWarehouse?: boolean;
+  paymentSuccess?: boolean;
+  typePayment?: string;
+  warehouse?: ImportOrderObject[];
+};
+export type ImportOrderObject = {
+  warehouseAddressDetail?: string;
+  warehouseCode?: number;
+  ordersCode?: number;
+  typeImportExportOrders?: number;
+  date?: string;
 };
