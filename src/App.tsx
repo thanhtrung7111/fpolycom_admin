@@ -36,6 +36,7 @@ import UserAccountPage from "./page/user_account/UserAccountPage";
 import StorePage from "./page/store/StorePage";
 import ReceiveOrderPage from "./page/receive_order/ReceiveOrderPage";
 import DeliveryOrderPage from "./page/delivery_order/DeliveryOrderPage";
+import StoreOrderPage from "./page/orders/StoreOrderPage";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -108,6 +109,10 @@ function App() {
             <Route
               element={<UserAccountPage></UserAccountPage>}
               path="/user_account"
+            ></Route>
+            <Route
+              element={<StoreOrderPage></StoreOrderPage>}
+              path="/orders"
             ></Route>
             <Route
               element={<ReceiveOrderPage></ReceiveOrderPage>}

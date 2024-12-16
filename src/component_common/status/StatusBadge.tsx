@@ -6,12 +6,14 @@ const StatusBadge = ({
   warning,
   error,
   pending,
+  reject,
   children,
 }: {
   item: string;
   success?: string;
   warning?: string;
   error?: string;
+  reject?: string;
   pending?: string;
   children: ReactNode;
 }) => {
@@ -26,11 +28,14 @@ const StatusBadge = ({
     case error:
       className = "bg-red-500";
       break;
+    case reject:
+      className = "bg-red-800";
+      break;
   }
 
   return (
     <div
-      className={`${className} px-3 py-2 w-fit text-white rounded-sm text-xs`}
+      className={`${className} px-3 py-1 w-fit text-white rounded-sm text-xs`}
     >
       {children}
     </div>

@@ -19,10 +19,12 @@ import {
 import { toast } from "sonner";
 import StatusBadge from "@/component_common/status/StatusBadge";
 import StoreDetailDialog from "./component.tsx/StoreDetailDialog";
+import StoreRejectDialog from "./component.tsx/StoreRejectDialog";
 
 const StorePage = () => {
   const queryClient = useQueryClient();
   const [openUpdate, setOpenUpdate] = useState(false);
+  const [openReject, setOpenReject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StoreListObject | null>(
     null
   );
@@ -240,6 +242,7 @@ const StorePage = () => {
             item={row.original.status ? row.original.status : ""}
             success="active"
             error="lock"
+            reject="rejected"
             warning="pending"
           >
             {row.getValue("status") == "pending" && "Chờ duyệt"}
@@ -289,8 +292,30 @@ const StorePage = () => {
                   <span>Khóa cửa hàng</span>
                 </div>
               )}
-              {(row.original.status == "pending" ||
-                row.original.status == "lock") && (
+              {row.original.status == "pending" && (
+                <>
+                  <div
+                    className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                    onClick={async () => {
+                      if (row.original.storeCode) {
+                        await handleUnclock.mutateAsync(row.original.storeCode);
+                      }
+                    }}
+                  >
+                    <span>Duyệt cửa hàng</span>
+                  </div>
+                  <div
+                    className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
+                    onClick={() => {
+                      setSelectedItem(row.original);
+                      setOpenReject(true);
+                    }}
+                  >
+                    <span>Từ chối duyệt</span>
+                  </div>
+                </>
+              )}
+              {row.original.status == "lock" && (
                 <div
                   className="px-3 hover:bg-slate-100 cursor-pointer text-sm py-2 text-gray-600 flex gap-x-1"
                   onClick={async () => {
@@ -299,11 +324,7 @@ const StorePage = () => {
                     }
                   }}
                 >
-                  <span>
-                    {row.original.status == "pending"
-                      ? "Duyệt cửa hàng"
-                      : "Mở cửa hàng"}
-                  </span>
+                  <span>Mở cửa hàng</span>
                 </div>
               )}
             </PopoverContent>
@@ -314,16 +335,11 @@ const StorePage = () => {
   ];
   return (
     <>
-      {/* <WardDeletePage
-      item={selectedItem}
-      open={openDelete}
-      onClose={() => setOpenDelete(false)}
-    ></WardDeletePage>
-    <WardUpdatePage
-      open={openUpdate}
-      onClose={() => setOpenUpdate(false)}
-      item={selectedItem}
-    ></WardUpdatePage>*/}
+      <StoreRejectDialog
+        item={selectedItem}
+        onClose={() => setOpenReject(false)}
+        open={openReject}
+      ></StoreRejectDialog>
       <StoreDetailDialog
         item={selectedItem}
         open={openUpdate}

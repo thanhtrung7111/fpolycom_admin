@@ -168,9 +168,9 @@ const menu: any[] = [
             link: "/delivery_order",
           },
           {
-            itemName: "Đơn hoàn trả",
+            itemName: "Danh sách",
             itemIcon: <i className="ri-account-box-line"></i>,
-            link: "/discount",
+            link: "/orders",
           },
         ],
       },
