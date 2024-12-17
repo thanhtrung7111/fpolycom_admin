@@ -48,7 +48,12 @@ const OrderDetailDialog = ({
 }) => {
   // const { currentStore } = use();
   const [orderDetail, setOrderDetail] = useState<OrderInfoObject | null>(null);
-
+  const [statusReceive, setStatusReceive] = useState<any | null | undefined>(
+    null
+  );
+  const [statusDelivery, setStatusDelivery] = useState<any | null | undefined>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const validationSchema = Yup.object().shape({
@@ -62,6 +67,26 @@ const OrderDetailDialog = ({
   const handleFetchOrder = useMutation({
     mutationFn: (body: number) =>
       postData({ orderCode: body }, "/admin/order/get"),
+    onSuccess: (data: OrderInfoObject) => {
+      console.log(data);
+      setOrderDetail(data);
+      if (data.receiveDeliveryList) {
+        setStatusReceive(
+          data.receiveDeliveryList
+            ? data.receiveDeliveryList?.find(
+                (item: any) => item.typeDelivery == "receive"
+              )
+            : null
+        );
+        setStatusDelivery(
+          data.receiveDeliveryList
+            ? data.receiveDeliveryList?.find(
+                (item: any) => item.typeDelivery == "delivery"
+              )
+            : null
+        );
+      }
+    },
   });
 
   const handleConfirmOrder = useMutation({
@@ -240,7 +265,7 @@ const OrderDetailDialog = ({
                             <span
                               className={`absolute flex items-center justify-center w-8 h-8 ${
                                 orderDetail?.confirmOrder
-                                  ? "bg-qyellow"
+                                  ? "bg-yellow-300"
                                   : "bg-gray-200 border"
                               } rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-green-900`}
                             >
@@ -263,7 +288,7 @@ const OrderDetailDialog = ({
                             <span
                               className={`absolute flex items-center justify-center w-8 h-8 ${
                                 orderDetail?.confirmPrepare
-                                  ? "bg-qyellow"
+                                  ? "bg-yellow-300"
                                   : "bg-gray-200 border"
                               } rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-green-900`}
                             >
@@ -285,12 +310,14 @@ const OrderDetailDialog = ({
                           <li className="mb-10 ms-6">
                             <span
                               className={`absolute flex items-center justify-center w-8 h-8 ${
-                                orderDetail?.confirmPickup
-                                  ? "bg-qyellow"
+                                statusReceive?.statusDelivery == "complete"
+                                  ? "bg-yellow-300"
                                   : "bg-gray-200 border"
                               } rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-green-900`}
                             >
-                              {orderDetail?.confirmPickup ? (
+                              {orderDetail.receiveDeliveryList?.find(
+                                (item) => item.typeDelivery == "receive"
+                              )?.statusDelivery == "complete" ? (
                                 <i className="ri-check-line text-gray-500"></i>
                               ) : (
                                 <i className="ri-instance-line text-gray-500"></i>
@@ -301,38 +328,27 @@ const OrderDetailDialog = ({
                                 Lấy hàng
                               </h3>
                               <p className="mb-1">
-                                {orderDetail?.confirmPickup
-                                  ? "Đã lấy hàng"
-                                  : orderDetail.receiveDeliveryList?.find(
-                                      (item) => item.typeDelivery == "receive"
-                                    ) && (
-                                      <span>
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "receive"
-                                        )?.statusDelivery == "taking" &&
-                                          "Đang lấy hàng"}
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "receive"
-                                        )?.statusDelivery == "appoinment" &&
-                                          "Lấy hàng bị hoãn"}
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "receive"
-                                        )?.statusDelivery == "complete" &&
-                                          "Đã lấy hàng"}
-                                      </span>
-                                    )}
+                                {statusReceive && (
+                                  <span>
+                                    {statusReceive?.statusDelivery ==
+                                      "taking" && "Đang lấy hàng"}
+                                    {statusReceive?.statusDelivery ==
+                                      "appoinment" && "Lấy hàng bị hoãn"}
+                                    {statusReceive?.statusDelivery ==
+                                      "complete" && "Đã lấy hàng"}
+                                  </span>
+                                )}
                               </p>
                               <p className="text-xs">
-                                <span>Ước tính: </span>
-                                {orderDetail.receiveDeliveryList?.find(
-                                  (item) => item.typeDelivery == "receive"
-                                )
-                                  ? orderDetail.receiveDeliveryList?.find(
-                                      (item) => item.typeDelivery == "receive"
-                                    )?.deliveryDate
+                                <span>
+                                  {statusReceive &&
+                                  statusReceive?.statusDelivery == "complete"
+                                    ? "Hoàn thành"
+                                    : "Ước tính"}
+                                  :{" "}
+                                </span>
+                                {statusReceive
+                                  ? statusReceive?.deliveryDate
                                   : "Chưa có ngày lấy hàng"}
                               </p>
                             </div>
@@ -340,12 +356,14 @@ const OrderDetailDialog = ({
                           <li className="ms-6 !border-transparent">
                             <span
                               className={`absolute flex items-center justify-center w-8 h-8 ${
-                                orderDetail?.confirmPickup
-                                  ? "bg-qyellow"
+                                statusDelivery?.statusDelivery == "complete"
+                                  ? "bg-yellow-300"
                                   : "bg-gray-200 border"
                               } rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-green-900`}
                             >
-                              {orderDetail?.confirmPickup ? (
+                              {orderDetail.receiveDeliveryList?.find(
+                                (item) => item.typeDelivery == "delivery"
+                              )?.statusDelivery == "complete" ? (
                                 <i className="ri-check-line text-gray-500"></i>
                               ) : (
                                 <i className="ri-instance-line text-gray-500"></i>
@@ -356,38 +374,28 @@ const OrderDetailDialog = ({
                                 Giao hàng
                               </h3>
                               <p className="mb-1">
-                                {orderDetail?.confirmPickup
-                                  ? "Đã giao hàng"
-                                  : orderDetail.receiveDeliveryList?.find(
-                                      (item) => item.typeDelivery == "delivery"
-                                    ) && (
-                                      <span>
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "delivery"
-                                        )?.statusDelivery == "taking" &&
-                                          "Đang giao hàng"}
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "delivery"
-                                        )?.statusDelivery == "appoinment" &&
-                                          "Giao hàng bị hoãn"}
-                                        {orderDetail.receiveDeliveryList?.find(
-                                          (item) =>
-                                            item.typeDelivery == "delivery"
-                                        )?.statusDelivery == "complete" &&
-                                          "Đã giao hàng"}
-                                      </span>
-                                    )}
+                                {statusDelivery && (
+                                  <span>
+                                    {statusDelivery?.statusDelivery ==
+                                      "taking" && "Đang giao hàng"}
+                                    {statusDelivery?.statusDelivery ==
+                                      "appoinment" && "Giao hàng bị hoãn"}
+                                    {statusDelivery?.statusDelivery ==
+                                      "complete" && "Đã giao hàng"}
+                                  </span>
+                                )}
                               </p>
                               <p className="text-xs">
-                                <span>Ước tính: </span>
-                                {orderDetail.receiveDeliveryList?.find(
-                                  (item) => item.typeDelivery == "delivery"
-                                )
-                                  ? orderDetail.receiveDeliveryList?.find(
-                                      (item) => item.typeDelivery == "delivery"
-                                    )?.deliveryDate
+                                <span>
+                                  {" "}
+                                  {statusDelivery &&
+                                  statusDelivery?.statusDelivery == "complete"
+                                    ? "Hoàn thành"
+                                    : "Ước tính"}
+                                  : :{" "}
+                                </span>
+                                {statusDelivery
+                                  ? statusDelivery?.deliveryDate
                                   : "Chưa có ngày giao hàng hàng"}
                               </p>
                             </div>
@@ -550,45 +558,6 @@ const OrderDetailDialog = ({
                     </DialogDescription>
                     <DialogFooter>
                       <div className="flex gap-x-2 justify-end">
-                        {/* {orderDetail.orderStatus == "pending" && (
-                          <>
-                            <ButtonForm
-                              type="button"
-                              className="!w-40 !bg-primary"
-                              label="Xác nhận đơn hàng"
-                              onClick={() => {
-                                if (orderDetail.orderCode) {
-                                  handleConfirmOrder.mutateAsync(
-                                    Number.parseInt(orderDetail.orderCode)
-                                  );
-                                }
-                              }}
-                              loading={handleConfirmOrder.isPending}
-                            ></ButtonForm>
-                            <ButtonForm
-                              type="submit"
-                              className="!w-28 !bg-yellow-600"
-                              label="Hủy đơn hàng"
-                              //   loading={handlePost.isPending || isLoading}
-                              // disabled={false}
-                            ></ButtonForm>
-                          </>
-                        )}
-                        {orderDetail.orderStatus == "prepare" && (
-                          <ButtonForm
-                            type="submit"
-                            className="!w-40 !bg-primary"
-                            label="Chuẩn bị hàng xong"
-                            loading={handlePreparedOrder.isPending || isLoading}
-                            onClick={() => {
-                              if (orderDetail.orderCode) {
-                                handlePreparedOrder.mutateAsync(
-                                  Number.parseInt(orderDetail.orderCode)
-                                );
-                              }
-                            }}
-                          ></ButtonForm>
-                        )} */}
                         <ButtonForm
                           type="button"
                           className="!w-28 !bg-red-500"
