@@ -69,11 +69,6 @@ const menu: any[] = [
             itemIcon: <i className="ri-account-box-line"></i>,
             link: "/bank_user",
           },
-          {
-            itemName: "Tài khoản cửa hàng",
-            itemIcon: <i className="ri-store-line"></i>,
-            link: "/bank_store",
-          },
         ],
       },
       {
